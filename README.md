@@ -1,0 +1,1 @@
+Redeco api client consumer
