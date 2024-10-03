@@ -87,6 +87,7 @@
         fetch('/.netlify/functions/auth/institutions')
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 const select = document.getElementById('institucion');
                 data.forEach(institution => {
                     const option = document.createElement('option');

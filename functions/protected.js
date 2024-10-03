@@ -1,7 +1,7 @@
 const express = require('express');
 const serverless = require('serverless-http');
 const cookieParser = require('cookie-parser');
-const verifyToken = require('./authMiddleware');
+const verifyToken = require('../utils/authMiddleware');
 
 const app = express();
 app.use(cookieParser());
