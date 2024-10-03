@@ -8,6 +8,7 @@ const User = require('../models/User');
 const Institution = require('../models/Institution');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
+const mongoose = require('mongoose');
 
 // Inicializar variables de entorno
 dotenv.config();
