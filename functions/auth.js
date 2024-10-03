@@ -13,9 +13,14 @@ const connectDB = require('../utils/db');
 dotenv.config();
 
 if (mongoose.connection.readyState === 0) { // Solo conectar si no hay conexión
-  await mongoose.connect(process.env.MONGODB_URI);
-  console.log('Conectado a MongoDB');
+  // Conectar con MongoDB solo una vez
+  mongoose.connect(process.env.MONGODB_URI).then(() => {
+    console.log('Conectado a MongoDB');
+  }).catch((err) => {
+    console.error('Error al conectar a MongoDB', err);
+  });
 }
+
 // Crear una app Express
 const app = express();
 app.use(express.json());
