@@ -4,365 +4,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consumir API REDECO</title>
+    <title>Access REDECO API</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="static/css/styles.css" rel="stylesheet">
+    <link rel="shortcut icon" href="#">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
 </head>
 
 <body>
-    <h1>API REDECO</h1>
-
-    <!-- Navegación -->
-    <ul class="nav nav-tabs nav-fill">
-        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"
-                onclick="showSection('createSuperUser')">Generacion de Token Access Institución</a></li>
-        <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('renewalToken')"">Creación de Usuarios
-                Nuevos</a></li>
-        <li class=" nav-item"><a class="nav-link" href="#" onclick="showSection('renewalToken')">Renovación de
-                    Token</a>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                aria-expanded="false">Quejas</a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="showSection('sendComplaints')">Enviar Quejas</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('findComplaints')">Consultar Queja</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('delComplaints')">Eliminar Queja</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                aria-expanded="false">Catálogos Generales</a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="showSection('mediosRecepcion')">Medios de Recepción</a>
-                </li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('nivelesAtencion')">Niveles de Atención</a>
-                </li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('productos')">Lista de Productos</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('causas')">Lista de Causas</a></li>
-            </ul>
-        </li>
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                aria-expanded="false">Catálogos SEPOMEX</a>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="showSection('estados')">Estados</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('codigosPostales')">Códigos Postales</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('municipios')">Municipios</a></li>
-                <li><a class="dropdown-item" href="#" onclick="showSection('colonias')">Colonias</a></li>
-            </ul>
-        </li>
-    </ul>
-
-    <!-- Secciones -->
-    <section id="createSuperUser" class="section">
-        <h2>Generacion de Token Access</h2>
-        <form id="createSuperUserForm" class="needs-validation" autocomplete="off">
-            <div class="mb-2">
-                <label for="redecoKey">Clave REDECO:</label>
-                <input type="text" class="form-control" id="redecoKey" name="redecoKey"
-                    placeholder="Clave de acceso que se proporciona desde el sistema REDECO." required>
-            </div>
-            <div class="mb-2">
-                <label for="superUsername">Nombre de usuario:</label>
-                <input type="text" class="form-control" id="superUsername" name="superUsername"
-                    placeholder="Nombre de superusuario." required>
-            </div>
-            <div class="mb-2">
-                <label for="superUserPassword">Contraseña:</label>
-                <input type="password" class="form-control" id="superUserPassword" name="superUserPassword"
-                    placeholder="Ingrese una contraseña mayor a 8 digitos, incluya mayúsculas y un caracter especial (!#$%&/()*+)."
-                    required>
-            </div>
-            <div class="mb-4">
-                <label for="confirmSuperUserPassword">Confirmar Contraseña:</label>
-                <input type="password" class="form-control" id="confirmSuperUserPassword"
-                    name="confirmSuperUserPassword" placeholder="Ingrese nuevamente la contraseña." required>
-                <div class="invalid-feedback">Contraseña incorrecta.</div>
-            </div>
-            <button type="submit">Obtener Token</button>
-            <div class="alert alert-warning mt-4" role="alert">
-                NOTA: Todo Token Access generado tiene una vigencia de 30 días naturales. Es responsabilidad de cada
-                Institución Financiera hacer el resguardo de esta información.
-            </div>
-        </form>
-        <p id="tokenDisplay"></p>
-    </section>
-
-    <section id="createUser" class="section" style="display:none;">
-        <h2>Creación de Usuarios Nuevos</h2>
-        <form id="createUserForm" class="needs-validation" autocomplete="off">
-            <div class="mb-2">
-                <label for="instTokenAccess">Token Access:</label>
-                <input type="text" class="form-control" id="instTokenAccess" name="instTokenAccess"
-                    placeholder="Token Access generado por el super usuario." required>
-            </div>
-            <div class="mb-2">
-                <label for="newUsername">Nombre de usuario:</label>
-                <input type="text" class="form-control" id="newUsername" name="newUsername"
-                    placeholder="Nombre del nuevo usuario." required>
-            </div>
-            <div class="mb-2">
-                <label for="newPassword">Contraseña:</label>
-                <input type="password" class="form-control" id="newPassword" name="newPassword"
-                    placeholder="Ingrese una contraseña mayor a 8 digitos, incluya mayúsculas y un caracter especial (!#$%&/()*+)."
-                    required>
-            </div>
-            <div class="mb-4">
-                <label for="confirmNewPassword">Confirmar Contraseña:</label>
-                <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword"
-                    placeholder="Ingrese nuevamente la contraseña." required>
-                <div class="invalid-feedback">Contraseña incorrecta.</div>
-            </div>
-            <button type="submit">Crear Usuario</button>
-        </form>
-        <p id="userCreateResponse"></p>
-    </section>
-
-    <section id="renewalToken" class="section" style="display:none;">
-        <h2>Renovación de Token de Usuario</h2>
-        <form id="renewalTokenForm" autocomplete="off">
-            <div class="mb-2">
-                <label for="username">Nombre de usuario:</label>
-                <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario."
-                    required>
-            </div>
-            <div class="mb-4">
-                <label for="password">Contraseña:</label>
-                <input type="password" class="form-control" id="password" name="password"
-                    placeholder="Ingrese la contraseña del usuario." required>
-                <div class="invalid-feedback">Contraseña incorrecta.</div>
-            </div>
-            <button type="submit">Renovar Token</button>
-            <div class="alert alert-warning mt-4" role="alert">
-                NOTA: Todo Token Access generado tiene una vigencia de 30 días naturales. Es responsabilidad de cada
-                Institución Financiera hacer el resguardo de esta información.
-            </div>
-        </form>
-        <p id="tokenForgotDisplay"></p>
-    </section>
-
-    <section id="sendComplaints" class="section" style="display:none;">
-        <h2>Enviar Quejas</h2>
-        <!-- Aquí incluirás las diferentes opciones de quejas (POST, DELETE, GET) -->
-        <form id="sendComplaintsForm" autocomplete="off">
-            <div class="row">
-                <!-- Denominación -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasDenominacion" class="form-label">Denominación o razón social</label>
-                    <input type="text" class="form-control" id="QuejasDenominacion" maxlength="400"
-                        placeholder="Nombre completo como se muestra en SIPRES o REUNE" required>
-                </div>
-                <!-- Sector -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasSector" class="form-label">Sector</label>
-                    <input type="text" class="form-control" id="QuejasSector" maxlength="200"
-                        placeholder="Nombre del sector al que pertenece mi Institución Financiera" required>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Mes a informar -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasNoMes" class="form-label">Mes a informar</label>
-                    <select class="form-select" id="QuejasNoMes" required>
-                        <option value="">Seleccione una opción</option>
-                        <option value="1">Enero</option>
-                        <option value="2">Febrero</option>
-                        <option value="3">Marzo</option>
-                        <option value="4">Abril</option>
-                        <option value="5">Mayo</option>
-                        <option value="6">Junio</option>
-                        <option value="7">Julio</option>
-                        <option value="8">Agosto</option>
-                        <option value="9">Septiembre</option>
-                        <option value="10">Octubre</option>
-                        <option value="11">Noviembre</option>
-                        <option value="12">Diciembre</option>
-                    </select>
-                </div>
-                <!-- Número de quejas -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasNum" class="form-label">Número de quejas</label>
-                    <input type="text" class="form-control numerico" id="QuejasNum" value="1" required>
-                </div>
-                <!-- Número de folio -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasFolio" class="form-label">Número de folio</label>
-                    <input type="text" class="form-control" id="QuejasFolio" maxlength="50" placeholder="AAAA123456"
-                        required>
-                </div>
-                <!-- Fecha de la queja -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasFecRecepcion" class="form-label">Fecha de la queja</label>
-                    <input type="date" class="form-control" id="QuejasFecRecepcion" required>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Medio de recepción o canal -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasMedio" class="form-label">Medio de recepción o canal</label>
-                    <select class="form-select" id="QuejasMedio" required>
-                        <option value="">Seleccione una opción</option>
-                    </select>
-                </div>
-
-                <!-- Nivel de atención o contacto -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasNivelAT" class="form-label">Nivel de atención o contacto</label>
-                    <select class="form-select" id="QuejasNivelAT" required>
-                        <option value="">Seleccione una opción</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Producto y/o Servicio -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasProducto" class="form-label">Producto y/o Servicio</label>
-                    <input type="text" class="form-control" id="QuejasProducto" maxlength="12" required>
-                </div>
-                <!-- Causa de la queja -->
-                <div class="mb-3 col-6">
-                    <label for="QuejasCausa" class="form-label">Causa de la queja</label>
-                    <input type="text" class="form-control" id="QuejasCausa" maxlength="4" required>
-                </div>
-            </div>
-            <div class="row">
-                <!-- PORI -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasPORI" class="form-label">PORI</label>
-                    <select class="form-select" id="QuejasPORI" required>
-                        <option value="SI">SI</option>
-                        <option value="NO">NO</option>
-                    </select>
-                </div>
-                <!-- Estatus -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasEstatus" class="form-label">Estatus</label>
-                    <select class="form-select" id="QuejasEstatus" required>
-                        <option value="1">Pendiente</option>
-                        <option value="2">Concluido</option>
-                    </select>
-                </div>
-                <!-- Entidad Federativa -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasEstados" class="form-label">Entidad Federativa</label>
-                    <select class="form-select" id="QuejasEstados" required>
-                        <option value="">Seleccione una opción</option>
-                    </select>
-                </div>
-                <!-- Código Postal -->
-                <div class="mb-3 col-3">
-                    <label for="QuejasCP" class="form-label">Código Postal</label>
-                    <select class="form-select" id="QuejasCP" required disabled>
-                        <option value=""></option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Municipio o Alcaldía -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasMunId" class="form-label">Municipio o Alcaldía</label>
-                    <select class="form-select" id="QuejasMunId" required disabled>
-                        <option value=""></option>
-                    </select>
-                </div>
-                <!-- Colonia -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasColId" class="form-label">Colonia</label>
-                    <select class="form-select" id="QuejasColId" required disabled>
-                        <option value=""></option>
-                    </select>
-                </div>
-                <!-- Localidad -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasLocId" class="form-label">Localidad</label>
-                    <input type="text" class="form-control" id="QuejasLocId" required disabled readonly>
-                    <input type="text" id="hiddenLocId" hidden>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Tipo de persona -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasTipoPersona" class="form-label">Tipo de persona</label>
-                    <select class="form-select" id="QuejasTipoPersona" required>
-                        <option value="1">Persona Física</option>
-                        <option value="2">Persona Moral</option>
-                    </select>
-                </div>
-                <!-- Sexo -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasSexo" class="form-label">Sexo</label>
-                    <select class="form-select" id="QuejasSexo" required>
-                        <option value="M">Hombre</option>
-                        <option value="F">Mujer</option>
-                    </select>
-                </div>
-                <!-- Edad -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasEdad" class="form-label">Edad</label>
-                    <input type="text" class="form-control numerico" id="QuejasEdad" placeholder="18" required>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Fecha de resolución -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasFecResolucion" class="form-label">Fecha de resolución</label>
-                    <input type="date" class="form-control" id="QuejasFecResolucion" required>
-                </div>
-                <!-- Fecha de notificación -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasFecNotificacion" class="form-label">Fecha en la que se notificó al usuario</label>
-                    <input type="date" class="form-control" id="QuejasFecNotificacion" required>
-                </div>
-                <!-- Sentido de la resolución -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasRespuesta" class="form-label">Sentido de la resolución</label>
-                    <select class="form-select" id="QuejasRespuesta" required>
-                        <option value="1">Totalmente favorable al usuario</option>
-                        <option value="2">Desfavorable al usuario</option>
-                        <option value="3">Parcialmente favorable al usuario</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row">
-                <!-- Número de penalización -->
-                <div class="mb-3 col-4">
-                    <label for="QuejasNumPenal" class="form-label">Número de penalización</label>
-                    <input type="text" class="form-control numerico" id="QuejasNumPenal">
-                </div>
-                <!-- Tipo de penalización -->
-                <div class="mb-3 col-8">
-                    <label for="QuejasPenalizacion" class="form-label">Tipo de penalización</label>
-                    <select class="form-select" id="QuejasPenalizacion">
-                        <option value="1">Contractuales - Cancelación del contrato</option>
-                        <option value="2">Contractuales - Reasignación de cartera</option>
-                        <option value="3">Económicas - Multa</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Botón para enviar el formulario -->
-            <button type="submit" class="btn btn-success">Enviar Queja</button>
-        </form>
-        <p id="complaintsResponse"></p>
-    </section>
-
-    <section id="generalCatalogs" class="section" style="display:none;">
-        <h2>Catálogos Generales</h2>
-        <!-- Aquí incluirás el contenido de los catálogos generales -->
-    </section>
-
-    <section id="sepomexCatalog" class="section" style="display:none;">
-        <h2>Catálogo Sepomex</h2>
-        <!-- Aquí incluirás el contenido de los catálogos Sepomex -->
-    </section>
-
-    <script src="static/js/app.js"></script>
+    <div id="app"> <!-- Este div contendrá el login o el contenido principal dinámicamente --></div>
 </body>
+<script>
+    // Función para cargar el contenido dinámico
+    function loadContent(url) {
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('app').innerHTML = html;
+                if (url === 'views/login.html') {
+                    initLogin();
+                }
+                if (url === 'views/main.html') {
+                    initMain();
+                }
+            })
+            .catch(error => console.error('Error cargando el contenido:', error));
+    }
+    // Verificar si el usuario tiene un JWT válido en las cookies
+    function checkAuth(firstLog = true) {
+        fetch('/.netlify/functions/protected')
+            .then(response => {
+                if (response.ok) {
+                    if (firstLog) {
+                        localStorage.setItem('log', 1);
+                        Swal.fire({
+                            title: "Exito",
+                            text: "Login exitoso!",
+                            icon: "success"
+                        });
+                    }
+                    loadContent('views/main.html');
+                } else if (response.status == 403) {
+                    loadContent('views/login.html');
+                } else if (response.status == 401) {
+                    Swal.fire({
+                        title: "Info",
+                        text: "Por seguridad debe volver a iniciar sesión",
+                        icon: "info"
+                    });
+                    loadContent('views/login.html');
+                }
+            })
+            .catch(error => {
+                console.error('Error verificando el token:', error);
+                loadContent('views/login.html');
+            });
+    }
+    // Función para inicializar el login y las pestañas
+    function initLogin() {
+        // Inicializar el cambio de pestañas
+        $('.tab a').on('click', function (e) {
+            e.preventDefault();
+
+            $(this).parent().addClass('active');
+            $(this).parent().siblings().removeClass('active');
+
+            let target = $(this).attr('href');
+
+            $('.tab-content > div').removeClass('active');
+            $(target).addClass('active');
+        });
+        // Inicializar catálogo de instituciones
+        fetch('/.netlify/functions/auth/institutions')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('institucion');
+                data.forEach(institution => {
+                    const option = document.createElement('option');
+                    option.value = institution._id;
+                    option.text = institution.institution;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al cargar las instituciones:', error));
+
+        // Inicializar el formulario de login
+        $('#loginFormInst,#loginFormUser').on('submit', async function (e) {
+            e.preventDefault();
+            if ($('.is-invalid').length > 0) {
+                Swal.fire({
+                    text: "Por favor, corrija los campos inválidos antes de enviar.",
+                    icon: "warning"
+                });
+                $('.is-invalid:first').focus();
+                return;
+            }
+            let user = {};
+            let url = "";
+            if (this.id == 'loginFormInst') {
+                user = {
+                    "username": document.getElementById('superUsername').value,
+                    "password": document.getElementById('superUserPassword').value
+                };
+                url = '/.netlify/functions/auth/super-user';
+            } else {
+                user = {
+                    "id_institution": document.getElementById('institucion').value,
+                    "username": document.getElementById('usernameUser').value,
+                    "password": document.getElementById('passwordUser').value
+                };
+                url = '/.netlify/functions/auth/user';
+            }
+            const valid = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(user)
+            });
+            const result = await valid.json();
+            if (valid.ok) return checkAuth();
+            Swal.fire({
+                title: "Error",
+                text: `${result.message || valid.statusText}`,
+                icon: "error"
+            });
+        });
+    }
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function initMain() {
+        const uEnc = getCookie('userInfo');
+        if (uEnc) {
+            try {
+                const uI = JSON.parse(decodeURIComponent(uEnc));
+                document.getElementById('welcomeProfile').innerHTML = 'BIENVENIDO ' + uI.username.toUpperCase();
+                document.body.style.backgroundColor = "lightgray";
+                if (uI.user_admin) {
+                    // Ocultar secciones de quejas y catálogos
+                    document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'none';
+                    document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'none';
+                    document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'none';
+                    // Mostrar solo las secciones de administración
+                    document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'block';
+                    document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'block';
+                    document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'block';
+                    showSection('createSuperUser');
+                } else if (!uI.user_admin) {
+                    // Ocultar secciones de quejas y catálogos
+                    document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'block';
+                    document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'block';
+                    document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'block';
+
+                    // Mostrar solo las secciones de administración
+                    document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'none';
+                    document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'none';
+                    document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'none';
+                    showSection('sendComplaints');
+                } else {
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                console.error('Error al decodificar o analizar el JSON:', error);
+            }
+        } else {
+            console.error('No se encontró la cookie userInfo');
+        }
+
+        $('#btnCerrarS').on('click', async function (e) {
+            e.preventDefault();
+            try {
+                const response = await fetch('/.netlify/functions/auth/logout', {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    Swal.fire({
+                        title: "Advertencia",
+                        html: `¿Esta seguro de cerrar sesión?`,
+                        icon: "warning",
+                        confirmButtonColor: "#007f4f",
+                        confirmButtonText: "Si",
+                        showDenyButton: true,
+                        denyButtonText: 'No',
+                    }).then((res) => {
+                        if (res.isConfirmed) {
+                            Swal.fire({
+                                title: "Sesión cerrada",
+                                text: "Has cerrado sesión correctamente.",
+                                icon: "success",
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                localStorage.removeItem('log');
+                                window.location.href = 'index.html';
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        title: "Error",
+                        text: "No se pudo cerrar la sesión.",
+                        icon: "error"
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cerrar sesión:', error);
+                Swal.fire({
+                    title: "Error",
+                    text: "Error al cerrar sesión.",
+                    icon: "error"
+                });
+            }
+        });
+    }
+
+    if (!localStorage.getItem('log')) {
+        checkAuth();
+    } else {
+        checkAuth(false);
+    }
+
+</script>
+<script src="static/js/app.js"></script>
 
 </html>

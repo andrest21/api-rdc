@@ -1,0 +1,37 @@
+<section id="createUser" class="section">
+    <h2>Creación de Usuarios Nuevos</h2>
+    <form id="createUserForm" class="needs-validation" autocomplete="off">
+        <div class="mb-2">
+            <label for="instTokenAccess">Token Access:</label>
+            <input type="text" class="form-control" id="instTokenAccess" name="instTokenAccess"
+                placeholder="Token Access generado por el super usuario." required>
+        </div>
+        <div class="mb-2">
+            <label for="newUsername">Nombre de usuario:</label>
+            <input type="text" class="form-control" id="newUsername" name="newUsername"
+                placeholder="Nombre del nuevo usuario." required>
+        </div>
+        <div class="mb-2">
+            <label for="newPassword">Contraseña:</label>
+            <div class="d-flex align-items-center">
+                <input type="password" class="form-control" id="newPassword" name="newPassword"
+                    placeholder="Ingrese una contraseña mayor a 8 digitos, incluya mayúsculas y un caracter especial (!#$%&/()*+)."
+                    required>
+                <i class="fas fa-eye vpass" style="transform: translateX(-3rem);width: 0;cursor: pointer;"></i>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="confirmNewPassword">Confirmar Contraseña:</label>
+            <div class="d-flex">
+                <div class="w-100">
+                    <input type="password" class="form-control" id="confirmNewPassword" name="confirmNewPassword"
+                        placeholder="Ingrese nuevamente la contraseña." required>
+                    <div class="invalid-feedback">Contraseña incorrecta.</div>
+                </div>
+                <i class="fas fa-eye vpass"
+                    style="transform: translateX(-3rem);width: 0;cursor: pointer;margin-top: 0.9%;"></i>
+            </div>
+        </div>
+        <button type="submit">Crear Usuario</button>
+    </form>
+</section>

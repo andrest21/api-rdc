@@ -1,0 +1,97 @@
+/*//////////////////////////////////////////////////////////////////
+  [ Table ]*/
+.container-table100 {
+  width: 100%;
+  background: #fff;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 20px 0px 0px 0px;
+}
+
+.wrap-table100 {
+  width: 100%;
+  max-height: 500px;
+}
+
+/*//////////////////////////////////////////////////////////////////
+  [ Table ]*/
+.table100 {
+  background-color: #fff;
+}
+
+table {
+  width: 100%;
+}
+
+.column1 {
+  width: 12%;
+  padding-left: 1.5rem !important;
+}
+
+.column2, .column4, .column6, .column8 {
+  width: 20%;
+}
+
+.column3, .column5, .column7 {
+  width: 14%;
+}
+
+thead th {
+  padding-block: 1.2%;
+}
+
+thead tr {
+  height: 3rem !important;
+}
+
+tbody td {
+  padding-block: 1%;
+  text-align: left;
+}
+
+/*==================================================================
+  [ Fix header ]*/
+.table100 {
+  position: relative;
+}
+
+.table100 tbody {
+  overflow-y: auto;
+}
+
+/*==================================================================
+  [ Ver3 ]*/
+
+
+.table100.ver3 th {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+  color: white;
+  line-height: 1.4;
+  text-transform: uppercase;
+  background-color: darkgreen;
+}
+
+.table100.ver3 td {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  color: white;
+  line-height: 1.4;
+}
+
+.table100.ver3 {
+  background-color: #393939;
+  max-height: 500px;
+  border-radius: 10px;
+  overflow-y: auto;
+  box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+  -webkit-box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+  -o-box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+  -ms-box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+}

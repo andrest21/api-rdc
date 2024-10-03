@@ -1,0 +1,189 @@
+<style>
+    *,
+    *:before,
+    *:after {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: black;
+        font-family: 'Tahoma', sans-serif;
+    }
+
+    .background {
+        width: 430px;
+        height: 520px;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+    }
+
+    .background .shape {
+        height: 200px;
+        width: 200px;
+        position: absolute;
+        border-radius: 50%;
+    }
+
+    .shape:first-child {
+        background: linear-gradient(#3a902f, #ffffff);
+        left: -50%;
+        top: -25%;
+    }
+
+    .shape:last-child {
+        background: linear-gradient(to right, #009730, #000000);
+        right: -50%;
+        bottom: -25%;
+    }
+
+    .tab-group {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .tab-group li {
+        width: 50%;
+    }
+
+    .tab-group a {
+        display: block;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        color: gray;
+        text-align: center;
+        font-size: 18px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tab-group .active a {
+        background: green;
+        color: white;
+    }
+
+    .tab-content>div {
+        display: none;
+    }
+
+    .tab-content>div.active {
+        display: block;
+    }
+
+    #contenedorForm {
+        height: auto;
+        width: 50%;
+        background-color: rgba(255, 255, 255, 0.13);
+        position: absolute;
+        transform: translate(-50%, -50%);
+        top: 50%;
+        left: 50%;
+        border-radius: 10px;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
+        padding: 50px 35px;
+    }
+
+    #contenedorForm * {
+        color: #ffffff;
+        letter-spacing: 0.5px;
+        outline: none;
+        border: none;
+    }
+
+    #contenedorForm h3 {
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 42px;
+        text-align: center;
+    }
+
+    form {
+        background-color: rgba(255, 255, 255, 0);
+        padding: 0px;
+    }
+
+    label {
+        display: block;
+        margin-top: 20px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    input,select {
+        display: block;
+        height: 50px;
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.07);
+        border-radius: 3px;
+        padding: 0 10px;
+        margin-top: 8px;
+        font-size: 14px;
+        font-weight: 300;
+    }
+
+    ::placeholder {
+        color: #e5e5e5;
+    }
+
+    button {
+        margin-top: 40px;
+        width: 100%;
+        background-color: #03620e;
+        color: #080710;
+        padding: 15px 0;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+</style>
+
+
+<div class="background">
+    <div class="shape"></div>
+    <div class="shape"></div>
+</div>
+
+<div id="contenedorForm">
+    <ul class="tab-group">
+        <li class="tab active"><a id="inst" href="#instLog">Institución</a></li>
+        <li class="tab"><a id="user" href="#userLog">Usuario</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="instLog" class="active">
+            <form id="loginFormInst" autocomplete="off">
+                <h3>Login Institución</h3>
+                <label for="superUsername">Nombre de Administrador</label>
+                <input type="text" placeholder="Nombre de Administrador" id="superUsername" required>
+                <label for="superUserPassword">Contraseña</label>
+                <input type="password"
+                    placeholder="Contraseña"
+                    id="superUserPassword" required>
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+        <div id="userLog">
+            <form id="loginFormUser" autocomplete="off">
+                <h3>Login Usuario</h3>
+                <label for="institucion">Institución</label>
+                <select id="institucion" required>
+                    <option value="">Seleccione la institucion a la que pertenece</option>
+                </select>
+                <label for="usernameUser">Usuario</label>
+                <input type="text" placeholder="Nombre de Usuario" id="usernameUser">
+                <label for="passwordUser">Contraseña</label>
+                <input type="password" placeholder="Contraseña" id="passwordUser">
+                <button type="submit">Log In</button>
+            </form>
+        </div>
+    </div>
+</div>

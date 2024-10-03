@@ -58,7 +58,12 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+button:disabled{
+    background-color: rgba(119, 119, 119, 0.814);
+    cursor: auto;
+}
+
+button:hover:not([disabled=""]){
     background-color: #007f4f;
 }
 
@@ -88,7 +93,7 @@ p {
 
 /* Estilos del menú de navegación */
 .nav-link {
-    color: #2e7d32 !important;
+    color: #007f4f !important;
     border-radius: 5px 5px 0px 0px !important;
 }
 
@@ -107,7 +112,7 @@ p {
 
 /* Secciones */
 .section {
-    padding: 20px;
+    padding: 30px;
     border: 1px solid #ccc;
     background-color: white;
     border-radius: 0px 0px 8px 8px;
