@@ -146,7 +146,7 @@ function initMain() {
     } else {
         console.error('No se encontró la cookie userInfo');
     }
-
+    $('footer').css('display','block');
     $('#btnCerrarS').on('click', async function (e) {
         e.preventDefault();
         try {
@@ -215,11 +215,22 @@ function cargarInst() {
 // Función que carga las instituciones en el select
 function cargarInsSelect(data) {
     const select = document.getElementById('institucion');
+    select.setAttribute("style", "color:#929292;");
     data.forEach(institution => {
         const option = document.createElement('option');
         option.value = institution._id;
         option.text = institution.institution;
         select.appendChild(option);
+    });
+
+    select.addEventListener("change", function(){
+        let selectedOption = this.options[select.selectedIndex];
+        if (selectedOption.value !== '*') {
+            select.setAttribute("style", "color:white;");
+        } else {
+            select.setAttribute("style", "color:#929292;");
+        }
+
     });
 }
 
