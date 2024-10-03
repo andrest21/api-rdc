@@ -34,8 +34,9 @@ function generateToken(user) {
 router.get('/institutions', async (req, res) => {
   console.log('entro');
   try {
+    console.time('Conexion a MongoDB');
     await connectDB();
-    console.log('conecto');
+    console.timeEnd('Conexion a MongoDB');
     const institutions = await Institution.find().select('_id institution');
     console.log('busco');
     res.json(institutions);
@@ -176,7 +177,7 @@ router.post('/create-super-user', async (req, res) => {
 // Ruta para crear un usuario y obtener el token_access
 router.post('/create-user', async (req, res) => {
   await connectDB();
-  const { token_access, username, password, confirm_password, id_institution} = req.body;
+  const { token_access, username, password, confirm_password, id_institution } = req.body;
   if (!token_access || !username || !password || !id_institution) return res.status(400).json({ message: 'Faltan datos' });
   if (password !== confirm_password) return res.status(400).json({ message: 'Las contraseñas no coinciden' });
   try {
