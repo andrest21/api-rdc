@@ -8,20 +8,9 @@ const User = require('../models/User');
 const Institution = require('../models/Institution');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
-const mongoose = require('mongoose');
 
 // Inicializar variables de entorno
 dotenv.config();
-
-//Inicializar conexion 
-if (mongoose.connection.readyState === 0) {
-  console.log('Generando conexion');
-  mongoose.connect(process.env.MONGODB_URI).then(() => {
-    console.log('Conectado a MongoDB');
-  }).catch((err) => {
-    console.error('Error al conectar a MongoDB', err);
-  });
-}
 
 // Crear una app Express
 const app = express();
@@ -43,10 +32,9 @@ function generateToken(user) {
 
 // Ruta para obtener todas las instituciones
 router.get('/institutions', async (req, res) => {
-  console.log('entro');
   try {
+    await connectDB();
     const institutions = await Institution.find().select('_id institution');
-    console.log('busco');
     res.json(institutions);
   } catch (error) {
     console.error('Error al obtener las instituciones:', error);
