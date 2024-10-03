@@ -13,8 +13,9 @@ const mongoose = require('mongoose');
 // Inicializar variables de entorno
 dotenv.config();
 
-if (mongoose.connection.readyState === 0) { // Solo conectar si no hay conexión
-  // Conectar con MongoDB solo una vez
+//Inicializar conexion 
+if (mongoose.connection.readyState === 0) {
+  console.log('Generando conexion');
   mongoose.connect(process.env.MONGODB_URI).then(() => {
     console.log('Conectado a MongoDB');
   }).catch((err) => {
