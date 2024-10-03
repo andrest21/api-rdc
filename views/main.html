@@ -1,20 +1,21 @@
 <div class="d-flex justify-content-between">
-    <h1 class="mb-0">API REDECO</h1>
-    <button type="button" id="btnCerrarS" class="btn btn-outline-secondary my-1"
-        style="border: none;--bs-btn-hover-bg: darkgreen;--bs-btn-color: #006341;"><i
-            class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
+
 </div>
-<p id="welcomeProfile" class="m-0 mb-3 ps-3" style="color: #006341;"></p>
+
 <!-- Navegación -->
 <ul class="nav nav-tabs nav-fill">
-    <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"
+    <li class="nav-item" style="width: min-content;">
+        <h1 class="m-0 ps-3">API REDECO</h1>
+        <p id="welcomeProfile" class="m-0" style="color: #006341;bottom: 8px;position: relative;"></p>
+    </li>
+    <li class="nav-item pt-4"><a class="nav-link active" aria-current="page" href="#"
             onclick="showSection('createSuperUser')">Generacion de Token Access Institución</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" onclick="showSection('createUser')"">Creación de Usuarios
+    <li class="nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('createUser')"">Creación de Usuarios
                 Nuevos</a></li>
-        <li class=" nav-item"><a class="nav-link" href="#" onclick="showSection('renewalToken')">Renovación de
+    <li class=" nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('renewalToken')">Renovación de
                 Token</a>
     </li>
-    <li class="nav-item dropdown">
+    <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
             aria-expanded="false">Quejas</a>
         <ul class="dropdown-menu">
@@ -23,7 +24,7 @@
             <li><a class="dropdown-item" href="#" onclick="showSection('delComplaints')">Eliminar Queja</a></li>
         </ul>
     </li>
-    <li class="nav-item dropdown">
+    <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
             aria-expanded="false">Catálogos Generales</a>
         <ul class="dropdown-menu">
@@ -38,7 +39,7 @@
             <li><a class="dropdown-item" href="#" onclick="showSection('catalogos/causas')">Lista de Causas</a></li>
         </ul>
     </li>
-    <li class="nav-item dropdown">
+    <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
             aria-expanded="false">Catálogos SEPOMEX</a>
         <ul class="dropdown-menu">
@@ -48,6 +49,11 @@
             <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/municipios')">Municipios</a></li>
             <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/colonias')">Colonias</a></li>
         </ul>
+    </li>
+    <li class="nav-item pt-4 d-flex" style="width: min-content;">
+        <button type="button" id="btnCerrarS" class="btn btn-outline-secondary"
+            style="border: none;--bs-btn-hover-bg: darkgreen;width: 100%;border-radius: 5px 5px 0px 0px !important;line-height: 1;font-size: 16px;--bs-btn-color: #006341;"><i
+                class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
     </li>
 </ul>
 
