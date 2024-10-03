@@ -1,0 +1,36 @@
+<head>
+    <link rel="stylesheet" href="static/css/tables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.7/css/dataTables.dataTables.css" />
+</head>
+
+<section id="codigosPostales" class="section">
+    <h2>Catálogo de Códigos Postales</h2>
+    <div class="my-4 d-flex w-50">
+        <label for="clvEdo" class="m-2 fs-5">Buscar:</label>
+        <select class="form-select" id="clvEdo" style="border-radius: 1px 0px 0px 1px;color:#5E5D5D">
+            <option value=""></option>
+        </select>
+        <button type="button" id="btnBuscar" style="border-radius: 0px 5px 5px 0px;">Buscar</button>
+    </div>
+    <div id="tableCP" class="container-table100" style="display: none;">
+        <div class="wrap-table100">
+            <div class="table100 ver3 m-b-110">
+                <table>
+                    <thead>
+                        <tr class="row100 head">
+                            <th class="cell100 column1">Estado</th>
+                            <th class="cell100 column2">Código SEPOMEX</th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <div class="table100-body js-pscroll ps ps--active-y">
+                    <table>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

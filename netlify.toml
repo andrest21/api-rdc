@@ -1,0 +1,13 @@
+[build]
+  publish = "."      # Directorio donde están los archivos estáticos (HTML, CSS, JS)
+  functions = "functions" # Directorio donde están las Netlify Functions
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

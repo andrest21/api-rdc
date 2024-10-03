@@ -1,0 +1,22 @@
+<section id="renewalToken" class="section">
+    <h2>Renovación de Token de Usuario</h2>
+    <form id="renewalTokenForm" autocomplete="off">
+        <div class="mb-2">
+            <label for="username">Nombre de usuario:</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario."
+                required>
+        </div>
+        <div class="mb-4">
+            <label for="password">Contraseña:</label>
+            <input type="password" class="form-control" id="password" name="password"
+                placeholder="Ingrese la contraseña del usuario." required>
+            <div class="invalid-feedback">Contraseña incorrecta.</div>
+        </div>
+        <button type="submit">Renovar Token</button>
+        <div class="alert alert-warning mt-4" role="alert">
+            NOTA: Todo Token Access generado tiene una vigencia de 30 días naturales. Es responsabilidad de cada
+            Institución Financiera hacer el resguardo de esta información.
+        </div>
+    </form>
+    <p id="tokenForgotDisplay"></p>
+</section>

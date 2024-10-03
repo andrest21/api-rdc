@@ -1,0 +1,202 @@
+<section id="sendComplaints" class="section">
+    <h2>Enviar Quejas</h2>
+    <form id="sendComplaintsForm" autocomplete="off">
+        <div class="row">
+            <!-- Denominación -->
+            <div class="mb-3 col-6">
+                <label for="QuejasDenominacion" class="form-label">Denominación o razón social</label>
+                <input type="text" class="form-control" id="QuejasDenominacion" maxlength="400"
+                    placeholder="Nombre completo como se muestra en SIPRES o REUNE" required>
+            </div>
+            <!-- Sector -->
+            <div class="mb-3 col-6">
+                <label for="QuejasSector" class="form-label">Sector</label>
+                <input type="text" class="form-control" id="QuejasSector" maxlength="200"
+                    placeholder="Nombre del sector al que pertenece mi Institución Financiera" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Mes a informar -->
+            <div class="mb-3 col-3">
+                <label for="QuejasNoMes" class="form-label">Mes a informar</label>
+                <select class="form-select" id="QuejasNoMes" required>
+                    <option value="">Seleccione una opción</option>
+                    <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>
+                </select>
+            </div>
+            <!-- Número de quejas -->
+            <div class="mb-3 col-3">
+                <label for="QuejasNum" class="form-label">Número de quejas</label>
+                <input type="text" class="form-control numerico" id="QuejasNum" value="1" required>
+            </div>
+            <!-- Número de folio -->
+            <div class="mb-3 col-3">
+                <label for="QuejasFolio" class="form-label">Número de folio</label>
+                <input type="text" class="form-control" id="QuejasFolio" maxlength="50" placeholder="AAAA123456"
+                    required>
+            </div>
+            <!-- Fecha de la queja -->
+            <div class="mb-3 col-3">
+                <label for="QuejasFecRecepcion" class="form-label">Fecha de la queja</label>
+                <input type="date" class="form-control" id="QuejasFecRecepcion" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Medio de recepción o canal -->
+            <div class="mb-3 col-6">
+                <label for="QuejasMedio" class="form-label">Medio de recepción o canal</label>
+                <select class="form-select" id="QuejasMedio" required>
+                    <option value="">Seleccione una opción</option>
+                </select>
+            </div>
+
+            <!-- Nivel de atención o contacto -->
+            <div class="mb-3 col-6">
+                <label for="QuejasNivelAT" class="form-label">Nivel de atención o contacto</label>
+                <select class="form-select" id="QuejasNivelAT" required>
+                    <option value="">Seleccione una opción</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Producto y/o Servicio -->
+            <div class="mb-3 col-6">
+                <label for="QuejasProducto" class="form-label">Producto y/o Servicio</label>
+                <input type="text" class="form-control" id="QuejasProducto" maxlength="12" required>
+            </div>
+            <!-- Causa de la queja -->
+            <div class="mb-3 col-6">
+                <label for="QuejasCausa" class="form-label">Causa de la queja</label>
+                <input type="text" class="form-control" id="QuejasCausa" maxlength="4" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- PORI -->
+            <div class="mb-3 col-3">
+                <label for="QuejasPORI" class="form-label">PORI</label>
+                <select class="form-select" id="QuejasPORI" required>
+                    <option value="SI">SI</option>
+                    <option value="NO">NO</option>
+                </select>
+            </div>
+            <!-- Estatus -->
+            <div class="mb-3 col-3">
+                <label for="QuejasEstatus" class="form-label">Estatus</label>
+                <select class="form-select" id="QuejasEstatus" required>
+                    <option value="1">Pendiente</option>
+                    <option value="2">Concluido</option>
+                </select>
+            </div>
+            <!-- Entidad Federativa -->
+            <div class="mb-3 col-3">
+                <label for="QuejasEstados" class="form-label">Entidad Federativa</label>
+                <select class="form-select" id="QuejasEstados" required>
+                    <option value="">Seleccione una opción</option>
+                </select>
+            </div>
+            <!-- Código Postal -->
+            <div class="mb-3 col-3">
+                <label for="QuejasCP" class="form-label">Código Postal</label>
+                <select class="form-select" id="QuejasCP" required disabled>
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Municipio o Alcaldía -->
+            <div class="mb-3 col-4">
+                <label for="QuejasMunId" class="form-label">Municipio o Alcaldía</label>
+                <select class="form-select" id="QuejasMunId" required disabled>
+                    <option value=""></option>
+                </select>
+            </div>
+            <!-- Colonia -->
+            <div class="mb-3 col-4">
+                <label for="QuejasColId" class="form-label">Colonia</label>
+                <select class="form-select" id="QuejasColId" required disabled>
+                    <option value=""></option>
+                </select>
+            </div>
+            <!-- Localidad -->
+            <div class="mb-3 col-4">
+                <label for="QuejasLocId" class="form-label">Localidad</label>
+                <input type="text" class="form-control" id="QuejasLocId" required disabled readonly>
+                <input type="text" id="hiddenLocId" hidden>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Tipo de persona -->
+            <div class="mb-3 col-4">
+                <label for="QuejasTipoPersona" class="form-label">Tipo de persona</label>
+                <select class="form-select" id="QuejasTipoPersona" required>
+                    <option value="1">Persona Física</option>
+                    <option value="2">Persona Moral</option>
+                </select>
+            </div>
+            <!-- Sexo -->
+            <div class="mb-3 col-4">
+                <label for="QuejasSexo" class="form-label">Sexo</label>
+                <select class="form-select" id="QuejasSexo" required>
+                    <option value="M">Hombre</option>
+                    <option value="F">Mujer</option>
+                </select>
+            </div>
+            <!-- Edad -->
+            <div class="mb-3 col-4">
+                <label for="QuejasEdad" class="form-label">Edad</label>
+                <input type="text" class="form-control numerico" id="QuejasEdad" placeholder="18" required>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Fecha de resolución -->
+            <div class="mb-3 col-4">
+                <label for="QuejasFecResolucion" class="form-label">Fecha de resolución</label>
+                <input type="date" class="form-control" id="QuejasFecResolucion" required>
+            </div>
+            <!-- Fecha de notificación -->
+            <div class="mb-3 col-4">
+                <label for="QuejasFecNotificacion" class="form-label">Fecha en la que se notificó al usuario</label>
+                <input type="date" class="form-control" id="QuejasFecNotificacion" required>
+            </div>
+            <!-- Sentido de la resolución -->
+            <div class="mb-3 col-4">
+                <label for="QuejasRespuesta" class="form-label">Sentido de la resolución</label>
+                <select class="form-select" id="QuejasRespuesta" required>
+                    <option value="1">Totalmente favorable al usuario</option>
+                    <option value="2">Desfavorable al usuario</option>
+                    <option value="3">Parcialmente favorable al usuario</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <!-- Número de penalización -->
+            <div class="mb-3 col-4">
+                <label for="QuejasNumPenal" class="form-label">Número de penalización</label>
+                <input type="text" class="form-control numerico" id="QuejasNumPenal">
+            </div>
+            <!-- Tipo de penalización -->
+            <div class="mb-3 col-8">
+                <label for="QuejasPenalizacion" class="form-label">Tipo de penalización</label>
+                <select class="form-select" id="QuejasPenalizacion">
+                    <option value="1">Contractuales - Cancelación del contrato</option>
+                    <option value="2">Contractuales - Reasignación de cartera</option>
+                    <option value="3">Económicas - Multa</option>
+                </select>
+            </div>
+        </div>
+        <!-- Botón para enviar el formulario -->
+        <button type="submit" class="btn btn-success">Enviar Queja</button>
+    </form>
+    <p id="complaintsResponse"></p>
+</section>

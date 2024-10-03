@@ -1,0 +1,41 @@
+<section id="createSuperUser" class="section">
+    <h2>Generacion de Token Access</h2>
+    <form id="createSuperUserForm" class="needs-validation" autocomplete="off">
+        <div class="mb-2">
+            <label for="redecoKey">Clave REDECO:</label>
+            <input type="text" class="form-control" id="redecoKey" name="redecoKey"
+                placeholder="Clave de acceso que se proporciona desde el sistema REDECO." required>
+        </div>
+        <div class="mb-2">
+            <label for="superUsername">Nombre de Super Usuario:</label>
+            <input type="text" class="form-control" id="superUsername" name="superUsername"
+                placeholder="Nombre de superusuario." required>
+        </div>
+        <div class="mb-2">
+            <label for="superUserPassword">Contraseña:</label>
+            <div class="d-flex align-items-center">
+                <input type="password" class="form-control" id="superUserPassword" name="superUserPassword"
+                    placeholder="Ingrese una contraseña mayor a 8 digitos, incluya mayúsculas y un caracter especial (!#$%&/()*+)."
+                    required>
+                <i class="fas fa-eye vpass" style="transform: translateX(-3rem);width: 0;cursor: pointer;"></i>
+            </div>
+        </div>
+        <div class="mb-4">
+            <label for="confirmSuperUserPassword">Confirmar Contraseña:</label>
+            <div class="d-flex">
+                <div class="w-100">
+                    <input type="password" class="form-control" id="confirmSuperUserPassword"
+                        name="confirmSuperUserPassword" placeholder="Ingrese nuevamente la contraseña." required>
+                    <div class="invalid-feedback">Contraseña incorrecta.</div>
+                </div>
+                <i class="fas fa-eye vpass"
+                    style="transform: translateX(-3rem);width: 0;cursor: pointer;margin-top: 0.9%;"></i>
+            </div>
+        </div>
+        <button type="submit">Obtener Token</button>
+        <div class="alert alert-warning mt-4" role="alert">
+            NOTA: Todo Token Access generado tiene una vigencia de 30 días naturales. Es responsabilidad de cada
+            Institución Financiera hacer el resguardo de esta información.
+        </div>
+    </form>
+</section>
