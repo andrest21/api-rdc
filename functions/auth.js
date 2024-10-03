@@ -12,6 +12,10 @@ const connectDB = require('../utils/db');
 // Inicializar variables de entorno
 dotenv.config();
 
+if (mongoose.connection.readyState === 0) { // Solo conectar si no hay conexión
+  await mongoose.connect(process.env.MONGODB_URI);
+  console.log('Conectado a MongoDB');
+}
 // Crear una app Express
 const app = express();
 app.use(express.json());
@@ -34,9 +38,6 @@ function generateToken(user) {
 router.get('/institutions', async (req, res) => {
   console.log('entro');
   try {
-    console.time('Conexion a MongoDB');
-    await connectDB();
-    console.timeEnd('Conexion a MongoDB');
     const institutions = await Institution.find().select('_id institution');
     console.log('busco');
     res.json(institutions);
