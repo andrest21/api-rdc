@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 
+dotenv.config();
 // Middleware para verificar el JWT
 function verifyToken(req, res, next) {
   const token = req.cookies.token;
