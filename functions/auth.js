@@ -32,9 +32,12 @@ function generateToken(user) {
 
 // Ruta para obtener todas las instituciones
 router.get('/institutions', async (req, res) => {
+  console.log('entro');
   try {
     await connectDB();
+    console.log('conecto');
     const institutions = await Institution.find().select('_id institution');
+    console.log('busco');
     res.json(institutions);
   } catch (error) {
     console.error('Error al obtener las instituciones:', error);
