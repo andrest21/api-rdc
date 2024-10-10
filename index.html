@@ -17,19 +17,28 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 
 <body>
     <div id="app"></div>
-</body>
-<footer style="display: none;">
-    <p>@Copyright © 2024 Tobar&FCC Org</p>
-    <p>All Rights Reserved</p>
+    <div id="spinner" style="width: 100%;height: 100vh;justify-content: center;display: flex;position: absolute;" class="d-none">
+        <div class="d-flex align-items-center w-25" style="height: 100px;align-self: center;color: white;background: rgba(0, 127, 79, 0.81);padding: 5%;border-radius: 5px;font-size: 20px;box-shadow: 5px 5px 5px #00000069;">
+            <strong>Loading...</strong>
+            <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
+        </div>
+    </div>
+    <footer style="display: none;">
+        <p>&copy; 2024 TM Global Innovations & FCC Org</p>
 
-    <p>This product is protected by copyright and distributed under
-        licenses restricting copying, distribution, and decompilation.</p>
-</footer>
+        <p>All Rights Reserved</p>
+        <p>This product is protected by copyright and distributed under
+            licenses restricting copying, distribution, and decompilation.</p>
+    </footer>
+</body>
+
 <script src="static/js/init.js"></script>
 <script src="static/js/app.js"></script>
 

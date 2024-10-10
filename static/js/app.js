@@ -1,24 +1,3 @@
-//Función para validar token
-function validToken() {
-    fetch('/.netlify/functions/protected')
-        .then(response => {
-            if (response.status == 403) {
-                loadContent('views/login.html');
-            } else if (response.status == 401) {
-                Swal.fire({
-                    title: "Info",
-                    text: "Por seguridad debe volver a iniciar sesión",
-                    icon: "info"
-                });
-                loadContent('views/login.html');
-            }
-        })
-        .catch(error => {
-            console.error('Error verificando el token:', error);
-            loadContent('views/login.html');
-        });
-}
-//Función para checar clase invalid
 function checkInvalid() {
     if ($('.is-invalid').length > 0) {
         Swal.fire({
@@ -26,12 +5,12 @@ function checkInvalid() {
             icon: "warning"
         });
         $('.is-invalid:first').focus();
-        return;
+        return false;
     }
+    return true;
 }
-// Función para cargar dinámicamente una sección desde un archivo HTML
-function showSection(sectionId) {
-    validToken();
+
+function loadSection(sectionId) {
     fetch(`./views/${sectionId}.html`)
         .then(response => {
             if (!response.ok) {
@@ -49,7 +28,7 @@ function showSection(sectionId) {
             });
 
             // Añadir la clase 'active' al elemento seleccionado
-            var descSecciones = ['createSuperUser', 'createUser', 'renewalToken'];
+            var descSecciones = ['createSuperUser', 'createUser', 'renewalToken', 'contacto'];
             var selectedLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
             if (descSecciones.includes(sectionId) && selectedLink) {
                 selectedLink.classList.add('active');
@@ -64,6 +43,24 @@ function showSection(sectionId) {
         });
 }
 
+function showSection(sectionId, isfirst = false) {
+    if (!isfirst) {
+        checkAuth(false, false).then(() => {
+            loadSection(sectionId);
+        }).catch((errorCode) => {
+            sessionStorage.removeItem('is_admin');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('log');
+            messageErrorHandler(errorCode);
+            setTimeout(() => {
+                loadContent('views/login.html');
+            }, 2000);
+        });
+    } else {
+        loadSection(sectionId);
+    }
+}
+
 function initSectionLogic(sectionId) {
     //Eliminamos invalid
     $('input:not(.maskedInput)').on('keyup', function () {
@@ -71,7 +68,8 @@ function initSectionLogic(sectionId) {
     });
     //Mascara para campos numericos
     $('input.numerico').inputmask({ mask: "9", repeat: '4' });
-
+    //Mascara para codigos postales
+    $('input.cp').inputmask({ mask: "9", repeat: '5' });
     //Inicializar icon eye
     $('.vpass').on('click', function () {
         let input = $(this).siblings('div').find('input');
@@ -88,7 +86,6 @@ function initSectionLogic(sectionId) {
             $(this).addClass('fas fa-eye');
         }
     });
-
     switch (sectionId) {
         case 'createSuperUser':
             //Inputmask
@@ -104,72 +101,77 @@ function initSectionLogic(sectionId) {
             });
 
             //Validar contraseñas iguales de super user
-            $('#superUserPassword,#confirmSuperUserPassword').on('change', function () {
+            $('#superUserPassword,#confirmSuperUserPassword').on('keyup', function () {
                 if ($('#superUserPassword').val() !== '' && $('#confirmSuperUserPassword').val() !== '') {
                     if ($('#superUserPassword').val() != $('#confirmSuperUserPassword').val()) {
                         $('#confirmSuperUserPassword').addClass('is-invalid');
-                    }else{
-                        $("#confirmNewPassword").removeClass('is-invalid');
+                    } else {
+                        $("#confirmSuperUserPassword").removeClass('is-invalid');
                     }
                 }
             });
             //Submit super user form
             $('#createSuperUserForm').on('submit', async function (e) {
                 e.preventDefault();
-                checkInvalid();
+                const validForm = checkInvalid();
+                if (validForm) {
+                    $('#spinner').removeClass('d-none');
+                    const newSuperUser = {
+                        "key": document.getElementById('redecoKey').value,
+                        "username": document.getElementById('superUsername').value,
+                        "password": document.getElementById('superUserPassword').value,
+                        "confirm_password": document.getElementById('confirmSuperUserPassword').value
+                    };
 
-                const newSuperUser = {
-                    "key": document.getElementById('redecoKey').value,
-                    "username": document.getElementById('superUsername').value,
-                    "password": document.getElementById('superUserPassword').value,
-                    "confirm_password": document.getElementById('confirmSuperUserPassword').value
-                };
-                
-                try {
-                    const response = await fetch('/.netlify/functions/auth/create-super-user', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(newSuperUser)
-                    });
-
-                    const result = await response.json();
-
-                    if (response.ok) {
-                        Swal.fire({
-                            title: "Token Access Generado",
-                            html: `Token:<b>${result.token_access}</b> <br>Guarde la llave en algun lugar seguro.`,
-                            icon: "success"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Swal.fire({
-                                    title: "Advertencia",
-                                    html: `¿Se aseguro de guardar la llave? <br>Esta llave no se volvera a mostrar.`,
-                                    icon: "warning",
-                                    confirmButtonColor: "#007f4f",
-                                    confirmButtonText: "Si",
-                                    showDenyButton: true,
-                                    denyButtonText: 'No',
-                                }).then((res) => {
-                                    if (res.isDenied) {
-                                        Swal.fire({
-                                            title: `Token: <b>${result.token_access}</b>`,
-                                            text: `Guarde la llave en algun lugar seguro.`
-                                        });
-                                    }
-                                });
-                            }
+                    try {
+                        const response = await fetch('/.netlify/functions/auth/create-super-user', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(newSuperUser)
                         });
-                    } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: `${result.message || response.statusText}`,
-                            icon: "error"
-                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            $('#spinner').addClass('d-none');
+                            Swal.fire({
+                                title: "Token Access Generado",
+                                html: `Token:<b>${result.token_access}</b> <br>Guarde la llave en algun lugar seguro.`,
+                                icon: "success"
+                            }).then((res) => {
+                                if (res.isConfirmed) {
+                                    Swal.fire({
+                                        title: "Advertencia",
+                                        html: `¿Se aseguro de guardar la llave? <br>Esta llave no se volvera a mostrar.`,
+                                        icon: "warning",
+                                        confirmButtonColor: "#007f4f",
+                                        confirmButtonText: "Si",
+                                        showDenyButton: true,
+                                        denyButtonText: 'No',
+                                    }).then((res) => {
+                                        if (res.isDenied) {
+                                            Swal.fire({
+                                                title: `Token: <b>${result.token_access}</b>`,
+                                                text: `Guarde la llave en algun lugar seguro.`
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                            $('#createSuperUserForm')[0].reset();
+                        } else {
+                            $('#spinner').addClass('d-none');
+                            Swal.fire({
+                                title: "Error",
+                                text: `${result.message || response.statusText}`,
+                                icon: "error"
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
                     }
-                } catch (error) {
-                    console.error('Error:', error);
                 }
             });
             break;
@@ -177,100 +179,142 @@ function initSectionLogic(sectionId) {
             //Submit user form
             $('#createUserForm').on('submit', async function (e) {
                 e.preventDefault();
-                checkInvalid();
-                const userInfoEncoded = getCookie('userInfo');
-                const userInfo = JSON.parse(decodeURIComponent(userInfoEncoded));
-                const newUser = {
-                    "token_access": document.getElementById('instTokenAccess').value,
-                    "username": document.getElementById('newUsername').value,
-                    "password": document.getElementById('newPassword').value,
-                    "confirm_password": document.getElementById('confirmNewPassword').value,
-                    "id_institution": userInfo.institution
-                };
-                try {
-                    $('button[type="submit"]').prop('disabled',true);
-                    // const response = await fetch('/.netlify/functions/auth/create-user', {
-                    //     method: 'POST',
-                    //     headers: {
-                    //         'Content-Type': 'application/json'
-                    //     },
-                    //     body: JSON.stringify(newUser)
-                    // });
-                    // const result = await response.json();
-                    // if (response.ok) {
-                    const response = true;
-                    if (response) {
-                        Swal.fire({
-                            title: "Exito",
-                            html: `Usuario Creado Correctamente`,
-                            icon: "success",
-                            timer: 2000
+                const validForm = checkInvalid();
+                if (validForm) {
+                    $('#spinner').removeClass('d-none');
+                    const newUser = {
+                        "token_access": document.getElementById('instTokenAccess').value,
+                        "username": document.getElementById('newUsername').value,
+                        "password": document.getElementById('newPassword').value,
+                        "confirm_password": document.getElementById('confirmNewPassword').value,
+                    };
+                    try {
+                        const response = await fetch('/.netlify/functions/auth/create-user', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(newUser)
                         });
-                        $('#confirmNewPassword').removeClass('is-invalid');
-                        $('#createUserForm').trigger("reset");
-                        $('button[type="submit"]').prop('disabled',false);
-                    } else {
+                        const result = await response.json();
+                        if (response.ok) {
+                            $('#spinner').addClass('d-none');
+                            Swal.fire({
+                                title: "Exito",
+                                html: `Usuario Creado Correctamente`,
+                                icon: "success"
+                            });
+                            $('#createUserForm').trigger("reset");
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: `${result.message || response.statusText}`,
+                                icon: "error"
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
                         Swal.fire({
                             title: "Error",
-                            text: `${result.message || response.statusText}`,
+                            text: error,
                             icon: "error"
                         });
-                        $('#confirmNewPassword').removeClass('is-invalid');
-                        $('#createUserForm').trigger("reset");
-                        $('button[type="submit"]').prop('disabled',false);
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    $('#confirmNewPassword').removeClass('is-invalid');
-                    $('#createUserForm').trigger("reset");
-                    $('button[type="submit"]').prop('disabled',false);
                 }
             });
 
             //Validar contraseñas de usuarios iguales
-            $('#newPassword,#confirmNewPassword').on('change', function () {
+            $('#newPassword,#confirmNewPassword').on('keyup', function () {
                 if ($('#newPassword').val() !== '' && $('#confirmNewPassword').val() !== '') {
                     if ($('#newPassword').val() != $('#confirmNewPassword').val()) {
                         $('#confirmNewPassword').addClass('is-invalid');
-                    }else{
+                    } else {
                         $("#confirmNewPassword").removeClass('is-invalid');
                     }
                 }
             });
-
             break;
         case 'renewalToken':
-            //Submit renovar token de usuario
+            const tokensUrl = "/.netlify/functions/auth/tokens";
+            cargarCatalogo(tokensUrl, 'tokens', ['date_created', 'updatedAt', 'username', 'token_access', 'remaining_days'], 'catalogoToken');
+            //Submit renovar token de institucion
             $('#renewalTokenForm').on('submit', async function (e) {
-                e.preventDefault(); // Evita el envío del formulario
-
-                const username = document.getElementById('username').value;
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value;
+                const isA = document.getElementById('userType').value;
+                console.log(isA);
+                if (username == '') $('#username').addClass('is-invalid');
+                if (password == '') $('#password').addClass('is-invalid');
+                const isValid = checkInvalid();
+                if (isValid) {
+                    $('#spinner').removeClass('d-none');
 
-                const authData = {
-                    "username": username,
-                    "password": password
-                };
+                    const authData = {
+                        "username": username,
+                        "password": password,
+                        "isA": isA
+                    };
 
-                try {
-                    const response = await fetch('https://api.condusef.gob.mx/auth/users/token/', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(authData)
-                    });
+                    try {
+                        const response = await fetch('/.netlify/functions/auth/renewal', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(authData)
+                        });
 
-                    const result = await response.json();
+                        const result = await response.json();
 
-                    if (response.ok) {
-                        document.getElementById('tokenDisplay').innerText = 'Token: ' + result.user.token_access;
-                        localStorage.setItem('token_access', result.user.token_access);
-                    } else {
-                        document.getElementById('tokenDisplay').innerText = 'Error: ' + result.msg;
+                        if (response.ok) {
+                            $('#spinner').addClass('d-none');
+                            if (authData.isA == '1') {
+                                Swal.fire({
+                                    title: "Token Access Generado",
+                                    html: `Token:<b>${result.token_access}</b> <br>Guarde la llave en algun lugar seguro.`,
+                                    icon: "success"
+                                }).then((res) => {
+                                    if (res.isConfirmed) {
+                                        Swal.fire({
+                                            title: "Advertencia",
+                                            html: `¿Se aseguro de guardar la llave? <br>Esta llave no se volvera a mostrar.`,
+                                            icon: "warning",
+                                            confirmButtonColor: "#007f4f",
+                                            confirmButtonText: "Si",
+                                            showDenyButton: true,
+                                            denyButtonText: 'No',
+                                        }).then((res) => {
+                                            if (res.isDenied) {
+                                                Swal.fire({
+                                                    title: `Token: <b>${result.token_access}</b>`,
+                                                    text: `Guarde la llave en algun lugar seguro.`
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Exito",
+                                    html: `Se renovo correctamente el token de acceso de <strong>${username}</strong>.`,
+                                    icon: "success"
+                                });
+                                $('#renewalTokenForm').trigger("reset");
+                                cargarCatalogo(tokensUrl, 'tokens', ['date_created', 'updatedAt', 'username', 'token_access', 'remaining_days'], 'catalogoToken');
+                            }
+                        } else {
+                            $('#spinner').addClass('d-none');
+                            Swal.fire({
+                                title: "Error",
+                                text: `${result.message || response.statusText}`,
+                                icon: "error"
+                            });
+                        }
+                    } catch (error) {
+                        $('#spinner').addClass('d-none');
+                        console.error('Error:', error);
                     }
-                } catch (error) {
-                    console.error('Error:', error);
                 }
             });
             break;
@@ -379,18 +423,39 @@ function initSectionLogic(sectionId) {
         case 'delComplaints':
             break;
         case 'catalogos/mediosRecepcion':
+            const mrAPI = "https://api.condusef.gob.mx/catalogos/medio-recepcion";
+            cargarCatalogo(mrAPI, 'medio', ['medioId', 'medioDsc'], 'catalogoMR');
             break;
         case 'catalogos/nivelesAtencion':
+            const naAPI = "https://api.condusef.gob.mx/catalogos/niveles-atencion";
+            cargarCatalogo(naAPI, 'nivelesDeAtencion', ['nivelDeAtencionId', 'nivelDeAtencionDsc'], 'catalogoNA');
             break;
         case 'catalogos/productos':
+            cargarProductos();
             break;
         case 'catalogos/causas':
+            $('.container-table100').show();
+            $('#btnBuscar').on('click', function (e) {
+                e.preventDefault();
+                var clvProd = $('#clvProd').val();
+                if (clvProd !== '') {
+                    cargarCausas(clvProd);
+                    $('.container-table100').show();
+                } else {
+                    $('#clvProd').focus();
+                    $('#clvProd').addClass('is-invalid');
+                }
+            });
+            $('#clvProd').on('change', function () {
+                $('.container-table100').hide();
+            });
             break;
         case 'SEPOMEX/estados':
             const estAPI = "https://api.condusef.gob.mx/sepomex/estados/";
-            cargarCatalogo(estAPI, 'estados', ['claveEdo', 'estado']);
+            cargarCatalogo(estAPI, 'estados', ['claveEdo', 'estado'], 'catalogoEstados');
             break;
         case 'SEPOMEX/codigosPostales':
+            $('.container-table100').hide();
             const edoSelect = document.getElementById("clvEdo");
             const edoAPI = "https://api.condusef.gob.mx/sepomex/estados/";
             cargarCatalogoSelect(edoAPI, edoSelect, 'estados', 'claveEdo', 'estado');
@@ -399,29 +464,125 @@ function initSectionLogic(sectionId) {
                 var clvEdo = $('#clvEdo').val();
                 if (clvEdo !== '') {
                     const cpAPI = "https://api.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + clvEdo;
-                    cargarCatalogo(cpAPI, 'codigos_postales', ['estado', 'codigo_sepomex']);
-                    $('#tableCP').show();
+                    cargarCatalogo(cpAPI, 'codigos_postales', ['estadoId', 'estado', 'codigo_sepomex'], 'catalogoCP');
+                    $('.container-table100').show();
+                } else {
+                    $('#clvEdo').focus();
+                    $('#clvEdo').addClass('is-invalid');
                 }
             });
             $('#clvEdo').on('change', function () {
-                $('#tableCP').hide();
+                $('.container-table100').hide();
             });
-
             break;
         case 'SEPOMEX/municipios':
-            break;
-        case 'SEPOMEX/colonias':
+            $('.container-table100').hide();
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var clvCP = $('#clvCP').val();
-                if (clvCP !== '') {
-                    const colAPI = "https://api.condusef.gob.mx/sepomex/colonias/?cp=" + clvCP;
-                    cargarCatalogo(colAPI, 'colonias', ['estadoId', 'estado', 'municipioId', 'municipio', 'coloniaId', 'colonia', 'tipoLocalidadId', 'tipoLocalidad'], false);
-                    $('#tableCol').show();
+                var clvCP = $('#clvCP').val().trim();;
+                var clvEdo = $('#clvEdo').val().trim();;
+                if (clvCP !== '' && clvEdo !== '') {
+                    const munAPI = "https://api.condusef.gob.mx/sepomex/municipios/?estado_id=" + clvEdo + "&cp=" + clvCP;
+                    cargarCatalogo(munAPI, 'municipios', ['estadoId', 'municipioId', 'municipio'], 'catalogoMunicipios');
+                    $('.container-table100').show();
+                } else if (clvCP === '') {
+                    $('#clvCP').focus();
+                    $('#clvCP').addClass('is-invalid');
+                } else {
+                    $('#clvEdo').focus();
+                    $('#clvEdo').addClass('is-invalid');
                 }
             });
             $('#clvCP').on('change', function () {
-                $('#tableCol').hide();
+                $('.container-table100').hide();
+            });
+            break;
+        case 'SEPOMEX/colonias':
+            $('.container-table100').hide();
+            $('#btnBuscar').on('click', function (e) {
+                e.preventDefault();
+                var clvCP = $('#clvCP').val().trim();
+                if (clvCP !== '') {
+                    const colAPI = "https://api.condusef.gob.mx/sepomex/colonias/?cp=" + clvCP;
+                    cargarCatalogo(colAPI, 'colonias', ['estadoId', 'estado', 'municipioId', 'municipio', 'coloniaId', 'colonia', 'tipoLocalidadId', 'tipoLocalidad'], 'catalogoColonias');
+                    $('.container-table100').show();
+                } else {
+                    $('#clvCP').focus();
+                    $('#clvCP').addClass('is-invalid');
+                }
+            });
+            $('#clvCP').on('change', function () {
+                $('.container-table100').hide();
+            });
+            break;
+        case 'contacto':
+            $('#contactoForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Validación de los campos
+                let valid = true;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                // Obtener los valores de los campos
+                const nombre = $('#nameContacto').val();
+                const email = $('#emailContacto').val();
+                const asunto = $('#asuntoContacto').val();
+                const mensaje = $('#mensajeContacto').val();
+
+                // Limpiar mensajes de error
+                $('input, textarea, select').removeClass('is-invalid');
+
+                // Validar que los campos no estén vacíos
+                if (nombre === '') {
+                    valid = false;
+                    $('#nameContacto').addClass('is-invalid');
+                }
+
+                if (email === '' || !emailRegex.test(email)) {
+                    valid = false;
+                    $('#emailContacto').addClass('is-invalid');
+                }
+
+                if (asunto === '') {
+                    valid = false;
+                    $('#asuntoContacto').addClass('is-invalid');
+                }
+
+                if (mensaje === '') {
+                    valid = false;
+                    $('#mensajeContacto').addClass('is-invalid');
+                }
+
+                // Si la validación es exitosa
+                if (valid) {
+                    // Enviar los datos del formulario
+                    const nombre = $('#nameContacto').val();
+                    const email = $('#emailContacto').val();
+                    const asunto = $('#asuntoContacto').val();
+                    const mensaje = $('#mensajeContacto').val();
+
+                    const templateParams = {
+                        from_name: nombre,
+                        from_email: email,
+                        asunto: asunto,
+                        mensaje: mensaje
+                    };
+                    console.log(templateParams);
+
+                    emailjs.send('ser_v.gx632*#rdc', 'temp_b9emfep*.#rdc', templateParams)
+                        .then(function (response) {
+                            if (response.ok) {
+                                Swal.fire({ title: 'Exito', text: '¡Gracias! Tu mensaje ha sido enviado.', icon: 'success' });
+                            } else {
+                                Swal.fire({ title: 'Error', text: 'Hubo un error al enviar el mensaje. Inténtalo de nuevo más tarde.', icon: 'error' });
+                            }
+                            $('#contactoForm')[0].reset();
+                        }, function (error) {
+                            Swal.fire({ title: 'Error', text: 'Hubo un error al enviar el mensaje. Inténtalo de nuevo más tarde.', icon: 'error' });
+                        });
+                } else {
+                    Swal.fire({ title: 'Error', text: 'Por favor, corrige los campos marcados antes de enviar.', icon: 'error' });
+                }
             });
             break;
         default:
@@ -435,24 +596,21 @@ function cargarCatalogoSelect(url, selectElement, key, idField, textField, disab
         .then(response => response.json())
         .then(data => {
             if (data[key] != '') {
-                // Limpia el select
                 selectElement.innerHTML = '<option value="">Seleccione una opción</option>';
                 if (setLocalidad) {
                     selectElement.innerHTML = '';
                 }
-                // Llena el select con los datos del catálogo
                 data[key].forEach(item => {
                     if (setLocalidad && item['coloniaId'] == colonia && item['municipioId'] == municipio) {
-                        document.getElementById('hiddenLocId').value = item[idField]; // Asigna el ID como valor del input
-                        selectElement.value = item[textField]; // Asigna la descripcion al input
+                        document.getElementById('hiddenLocId').value = item[idField];
+                        selectElement.value = item[textField];
                     } else {
                         const option = document.createElement("option");
-                        option.value = item[idField]; // Asigna el ID como valor de la opción
-                        option.textContent = item[textField]; // Asigna la descripción como texto
+                        option.value = item[idField];
+                        option.textContent = item[textField];
                         selectElement.appendChild(option);
                     }
                 });
-                //Habilitamos campo al que afecta
                 if (disabledField !== '') {
                     $('#' + disabledField).attr('disabled', false);
                 }
@@ -466,33 +624,109 @@ function cargarCatalogoSelect(url, selectElement, key, idField, textField, disab
         .catch(error => console.error('Error al cargar el catálogo:', error));
 }
 
-function cargarCatalogo(url, key, columns, addClassCol = true) {
+function cargarCatalogo(url, key, columns, table) {
+    $('#spinner').removeClass('d-none');
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.querySelector(".table100 tbody");
-            tableBody.innerHTML = ""; // Limpiar cualquier dato existente en la tabla
-
-            // Iterar sobre los datos obtenidos usando la clave correcta
-            data[key].forEach(item => {
-                const row = document.createElement("tr");
-                row.classList.add("row100", "body");
-                var iter = 1;
-                // Iterar sobre las columnas especificadas
-                columns.forEach(col => {
-                    const cell = document.createElement("td");
-                    if (addClassCol || iter == 1) {
-                        cell.classList.add("cell100", "column" + iter);
-                    } else {
-                        cell.classList.add("cell100");
-                    }
-                    cell.textContent = item[col]; // Asignar el valor del campo correspondiente
-                    row.appendChild(cell); // Añadir la celda a la fila
-                    iter++;
-                });
-
-                tableBody.appendChild(row); // Añadir la fila al cuerpo de la tabla
-            });
+            const dataRet = data[key].map(item => columns.map(col => item[col]))
+            setTable(dataRet, table);
         })
         .catch(error => console.error('Error al cargar el catálogo:', error));
+}
+
+function cargarCatalogoWH(data, key, columns, table) {
+    const dataRet = data[key].map(item => columns.map(col => item[col]));
+    setTable(dataRet, table);
+}
+
+async function cargarProductos() {
+    const prodCache = sessionStorage.getItem('product-list');
+    if (prodCache) {
+        const data = JSON.parse(prodCache);
+        cargarCatalogoWH(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+    } else {
+        try {
+            const response = await fetch('/.netlify/functions/auth/product', {
+                method: 'GET',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud:${response.statusText})`);
+            }
+
+            const data = await response.json();
+            sessionStorage.setItem('product-list', JSON.stringify(data));
+            cargarCatalogoWH(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+        } catch (error) {
+            console.error('Error al cargar los productos:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un error al cargar el catálogo de productos.',
+                icon: 'error'
+            }).then((result) => {
+                if (result.isConfirmed) window.location.href = 'index.html';
+            });
+        }
+    }
+}
+
+async function cargarCausas(prodId) {
+    const causasCache = sessionStorage.getItem('causas-list');
+    if (causasCache) {
+        const data = JSON.parse(causasCache);
+        cargarCatalogoWH(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+    } else {
+        try {
+            const response = await fetch('/.netlify/functions/auth/causas', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prodId: prodId })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud:${response.statusText})`);
+            }
+
+            const data = await response.json();
+            sessionStorage.setItem('causas-list', JSON.stringify(data));
+            cargarCatalogoWH(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+        } catch (error) {
+            console.error('Error al cargar los productos:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Hubo un error al cargar el catálogo de productos.',
+                icon: 'error'
+            }).then((result) => {
+                if (result.isConfirmed) window.location.href = 'index.html';
+            });
+        }
+    }
+}
+
+function setTable(data, table) {
+    if ($.fn.DataTable.isDataTable(`#${table}`)) {
+        $(`#${table}`).DataTable().clear().rows.add(data).draw();
+    } else {
+        $(`#${table}`).DataTable({
+            data: data,
+            "language": {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron registros",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    }
+    $('#spinner').addClass('d-none');
 }
