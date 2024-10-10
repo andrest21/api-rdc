@@ -1,0 +1,65 @@
+<section id="contacto" class="section">
+    <div class="col-12 d-flex" style="justify-content: space-around;">
+        <div class="col-5">
+            <div class="d-block" style="word-wrap: break-word;text-align: justify;">
+                <div class="mb-3">
+                    <h2>Acerca de Nostros</h2>
+                    <p>En TM Global Innovations & FCC Org, estamos comprometidos en ofrecer soluciones personalizadas que se adaptan a
+                        las necesidades únicas de cada cliente. Nos enfocamos en garantizar la máxima seguridad y
+                        calidad en el manejo de la información, asegurando resultados confiables y eficientes. Nuestro
+                        objetivo es ser un socio estratégico que impulsa el éxito de su negocio, a través de servicios
+                        innovadores y un compromiso inquebrantable con la excelencia.</p>
+                </div>
+                <div class="mb-3">
+                    <h2>Servicios para nuestros clientes</h2>
+                    <p>Ofrecemos dos opciones para impulsar tu infraestructura tecnológica:</p>
+                    <ul>
+                        <li>Implementación en tu infraestructura: Nos encargamos de la configuración completa en tus
+                            servidores.</li>
+                        <li>Acceso a nuestra plataforma: Utiliza nuestra página web mediante una clave de acceso
+                            personalizada.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h2>Contáctanos</h2>
+                    <p>Para más información, completa el siguiente formulario y nos pondremos en contacto contigo lo
+                        antes posible.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-5">
+            <div class="d-block">
+                <form id="contactoForm" class="needs-validation" autocomplete="off" method="POST"
+                    action="/enviar_correo">
+                    <p><i class="fas fa-smile" style="color: #006341;"></i> Ingrese sus datos de contacto.</p>
+                    <div class="mb-2">
+                        <label for="nameContacto">Nombre Completo</label>
+                        <input type="text" placeholder="Ingrese su nombre" id="nameContacto" name="nameContacto"
+                            class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="emailContacto">Email</label>
+                        <input type="email" placeholder="Ingrese un correo válido" id="emailContacto"
+                            name="emailContacto" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="asuntoContacto">Asunto</label>
+                        <select id="asuntoContacto" name="asuntoContacto" class="form-select" required>
+                            <option value="IMPLEMENTACION">Implementación</option>
+                            <option value="SERVICIOS">Servicios</option>
+                            <option value="PROBLEMA">Problema</option>
+                            <option value="OTROS">Otros</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="mensajeContacto">Mensaje</label>
+                        <textarea id="mensajeContacto" name="mensajeContacto" class="form-control" rows="5"
+                            placeholder="Escribe tu mensaje aquí..." required></textarea>
+                    </div>
+                    <button type="submit">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,23 +1,20 @@
-<div class="d-flex justify-content-between">
-
-</div>
-
-<!-- Navegación -->
 <ul class="nav nav-tabs nav-fill">
-    <li class="nav-item" style="width: min-content;">
-        <h1 class="m-0 ps-3">API REDECO</h1>
-        <p id="welcomeProfile" class="m-0" style="color: #006341;bottom: 8px;position: relative;"></p>
+    <li class="nav-item" style="width: fit-content;">
+        <div class="d-flex" style="flex-direction: column;position: relative;bottom: 15%;left: 10%;align-items: baseline;">
+            <h1 class="m-0 p-0">API REDECO</h1>
+            <p id="welcomeProfile" class="m-0 p-0"></p>
+        </div>
     </li>
     <li class="nav-item pt-4"><a class="nav-link active" aria-current="page" href="#"
-            onclick="showSection('createSuperUser')">Generacion de Token Access Institución</a></li>
-    <li class="nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('createUser')"">Creación de Usuarios
+            onclick="showSection('createSuperUser')"><i class="fas fa-key"></i> Generacion de Token Access Institución</a></li>
+    <li class="nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('createUser')""><i class="fas fa-user-check"></i> Creación de Usuarios
                 Nuevos</a></li>
-    <li class=" nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('renewalToken')">Renovación de
+    <li class=" nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('renewalToken')"><i class="fas fa-seedling"></i> Renovación de
                 Token</a>
     </li>
     <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-            aria-expanded="false">Quejas</a>
+            aria-expanded="false"><i class="fas fa-envelope-open-text"></i> Quejas</a>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" onclick="showSection('sendComplaints')">Enviar Quejas</a></li>
             <li><a class="dropdown-item" href="#" onclick="showSection('findComplaints')">Consultar Queja</a></li>
@@ -26,7 +23,7 @@
     </li>
     <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-            aria-expanded="false">Catálogos Generales</a>
+            aria-expanded="false"><i class="fas fa-table"></i> Catálogos Generales</a>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" onclick="showSection('catalogos/mediosRecepcion')">Medios de
                     Recepción</a>
@@ -41,7 +38,7 @@
     </li>
     <li class="nav-item pt-4 dropdown">
         <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-            aria-expanded="false">Catálogos SEPOMEX</a>
+            aria-expanded="false"><i class="fas fa-store"></i> Catálogos SEPOMEX</a>
         <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/estados')">Estados</a></li>
             <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/codigosPostales')">Códigos
@@ -50,7 +47,8 @@
             <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/colonias')">Colonias</a></li>
         </ul>
     </li>
-    <li class="nav-item pt-4 d-flex" style="width: min-content;">
+    <li class="nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('contacto')"><i class="fas fa-address-book"></i> Contacto</a></li>
+    <li class="nav-item pt-4 d-flex">
         <button type="button" id="btnCerrarS" class="btn btn-outline-secondary"
             style="border: none;--bs-btn-hover-bg: darkgreen;width: 100%;border-radius: 5px 5px 0px 0px !important;line-height: 1;font-size: 16px;--bs-btn-color: #006341;"><i
                 class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
@@ -59,5 +57,3 @@
 
 <!-- Sección dinámica -->
 <div id="seccionDinamica"></div>
-<div id="uid" hidden></div>
-<div id="uins" hidden></div>

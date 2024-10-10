@@ -23,7 +23,13 @@ const userSchema = new Schema({
     token_access: {
         type: String,
         required: false
+    },
+    date_token_created: {
+        type: Date,
+        required: false
     }
+}, {
+    timestamps: true // Agrega createdAt y updatedAt automáticamente
 });
 
 module.exports = mongoose.model('User', userSchema);

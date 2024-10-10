@@ -1,0 +1,41 @@
+table.dataTable thead {
+    background-color: #007f4f;
+    color: white;
+}
+
+table.dataTable tbody tr {
+    background-color: #f8f9fa;
+}
+
+table.dataTable tbody tr:hover {
+    background-color: #e9ecef;
+}
+
+.container-table100 {
+    padding: 20px;
+}
+
+.wrap-table100 {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0px 40px 0px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+}
+
+h2 {
+    color: #007f4f;
+}
+
+.page-link{
+    color: #007f4f !important;
+}
+
+.page-item.active .page-link{
+    color: #fff !important;
+    background-color: #007f4f !important;
+    border-color: #007f4f !important;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d !important;
+}
