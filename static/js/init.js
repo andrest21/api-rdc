@@ -37,7 +37,7 @@ function checkAuth(firstLog, reload = true) {
                         if (firstLog) {
                             sessionStorage.setItem('log', 1);
                             Swal.fire({
-                                title: "Exito",
+                                title: "Éxito",
                                 text: "Login exitoso!",
                                 icon: "success",
                                 timer: 3000
@@ -193,7 +193,7 @@ function initMain() {
         e.preventDefault();
         Swal.fire({
             title: "Advertencia",
-            html: `¿Esta seguro de cerrar sesión?`,
+            html: `¿Está seguro de cerrar sesión?`,
             icon: "warning",
             confirmButtonColor: "#007f4f",
             confirmButtonText: "Si",
@@ -247,7 +247,7 @@ function cargarInst() {
         const data = JSON.parse(insCache);
         cargarInsSelect(data);
     } else {
-        fetch('/.netlify/functions/auth/institutions')
+        fetch('/.netlify/functions/catalog/institutions')
             .then(response => response.json())
             .then(data => {
                 sessionStorage.setItem('inst', JSON.stringify(data));

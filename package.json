@@ -18,7 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.9.0",
     "mongoose": "^8.6.3",
-    "netlify-cli": "^17.36.4",
+    "netlify-cli": "^17.37.0",
     "serverless-http": "^3.2.0"
   }
 }
