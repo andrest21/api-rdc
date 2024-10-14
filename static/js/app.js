@@ -10,6 +10,22 @@ function checkInvalid() {
     return true;
 }
 
+function validateForm(data) {
+    let isValid = true;
+    for (const field in data) {
+        const fieldValue = data[field];
+        const inputField = $('#' + field);
+
+        if (fieldValue === false) {
+            inputField.addClass('is-invalid');
+            isValid = false;
+        } else {
+            inputField.removeClass('is-invalid');
+        }
+    }
+    return isValid;
+}
+
 function loadSection(sectionId) {
     fetch(`./views/${sectionId}.html`)
         .then(response => {
@@ -44,6 +60,7 @@ function loadSection(sectionId) {
 }
 
 function showSection(sectionId, isfirst = false) {
+    //Validamos si es carga inicial de pagina
     if (!isfirst) {
         checkAuth(false, false).then(() => {
             loadSection(sectionId);
@@ -68,6 +85,8 @@ function initSectionLogic(sectionId) {
     });
     //Mascara para campos numericos
     $('input.numerico').inputmask({ mask: "9", repeat: '4' });
+    //Mascara para campos numericos
+    $('input.edadInputMask').inputmask('numeric', { min: '0', max: '150', clearMaskOnLostFocus: true });
     //Mascara para codigos postales
     $('input.cp').inputmask({ mask: "9", repeat: '5' });
     //Inicializar icon eye
@@ -200,7 +219,7 @@ function initSectionLogic(sectionId) {
                         if (response.ok) {
                             $('#spinner').addClass('d-none');
                             Swal.fire({
-                                title: "Exito",
+                                title: "Éxito",
                                 html: `Usuario Creado Correctamente`,
                                 icon: "success"
                             });
@@ -235,7 +254,7 @@ function initSectionLogic(sectionId) {
             });
             break;
         case 'renewalToken':
-            const tokensUrl = "/.netlify/functions/auth/tokens";
+            const tokensUrl = "/.netlify/functions/catalog/tokens";
             cargarCatalogo(tokensUrl, 'tokens', ['date_created', 'updatedAt', 'username', 'token_access', 'remaining_days'], 'catalogoToken');
             //Submit renovar token de institucion
             $('#renewalTokenForm').on('submit', async function (e) {
@@ -243,9 +262,10 @@ function initSectionLogic(sectionId) {
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value;
                 const isA = document.getElementById('userType').value;
-                console.log(isA);
+
                 if (username == '') $('#username').addClass('is-invalid');
                 if (password == '') $('#password').addClass('is-invalid');
+
                 const isValid = checkInvalid();
                 if (isValid) {
                     $('#spinner').removeClass('d-none');
@@ -296,7 +316,7 @@ function initSectionLogic(sectionId) {
                                 });
                             } else {
                                 Swal.fire({
-                                    title: "Exito",
+                                    title: "Éxito",
                                     html: `Se renovo correctamente el token de acceso de <strong>${username}</strong>.`,
                                     icon: "success"
                                 });
@@ -322,39 +342,65 @@ function initSectionLogic(sectionId) {
             //Submit Quejas
             $('#sendComplaintsForm').on('submit', async function (e) {
                 e.preventDefault();
-
-                // const token = localStorage.getItem('token_access');
-                const token = document.getElementById('instTokenAccess').value;
-                if (!token) {
-                    alert('Primero debes obtener el token.');
-                    return;
-                }
-
                 const complaintData = {
-                    "QuejasDenominacion": document.getElementById('denominacion').value,
-                    "QuejasSector": document.getElementById('sector').value,
-                    "QuejasNoMes": parseInt(document.getElementById('mes').value),
-                    "QuejasFolio": document.getElementById('folio').value
+                    QuejasDenominacion: $('#QuejasDenominacion').val() !== '' ? $('#QuejasDenominacion').val() : false,
+                    QuejasSector: $('#QuejasSector').val() !== '' ? $('#QuejasSector').val() : false,
+                    QuejasNoMes: $('#QuejasNoMes').val() !== '' ? $('#QuejasNoMes').val() : false,
+                    QuejasNum: $('#QuejasNum').val() !== '' ? $('#QuejasNum').val() : false,
+                    QuejasFolio: $('#QuejasFolio').val() !== '' ? $('#QuejasFolio').val() : false,
+                    QuejasFecRecepcion: $('#QuejasFecRecepcion').val() !== '' ? $('#QuejasFecRecepcion').val() : false,
+                    QuejasMedio: $('#QuejasMedio').val() !== '' ? $('#QuejasMedio').val() : false,
+                    QuejasNivelAT: $('#QuejasNivelAT').val() !== '' ? $('#QuejasNivelAT').val() : false,
+                    QuejasProducto: $('#QuejasProducto').val() !== '' ? $('#QuejasProducto').val() : false,
+                    QuejasCausa: $('#QuejasCausa').val() !== '' ? $('#QuejasCausa').val() : false,
+                    QuejasPORI: $('#QuejasPORI').val() !== '' ? $('#QuejasPORI').val() : false,
+                    QuejasEstatus: $('#QuejasEstatus').val() !== '' ? $('#QuejasEstatus').val() : false,
+                    QuejasEstados: $('#QuejasEstados').val() !== '' ? $('#QuejasEstados').val() : false,
+                    QuejasCP: $('#QuejasCP').val() !== '' ? $('#QuejasCP').val() : false,
+                    QuejasMunId: $('#QuejasMunId').val() !== '' ? $('#QuejasMunId').val() : false,
+                    QuejasColId: $('#QuejasColId').val() !== '' ? $('#QuejasColId').val() : false,
+                    QuejasLocId: $('#hiddenLocId').val() !== '' ? $('#hiddenLocId').val() : '',
+                    QuejasTipoPersona: $('#QuejasTipoPersona').val() !== '' ? $('#QuejasTipoPersona').val() : false,
+                    QuejasSexo: ($('#QuejasSexo').val() !== '') ? $('#QuejasSexo').val() : ($('#QuejasTipoPersona').val() === '1' ? false : ''),
+                    QuejasEdad: $('#QuejasEdad').val() !== '' ? $('#QuejasEdad').val() : '',
+                    QuejasFecResolucion: $('#QuejasFecResolucion').val(),
+                    QuejasFecNotificacion: $('#QuejasFecNotificacion').val(),
+                    QuejasRespuesta: $('#QuejasRespuesta').val() !== '' ? $('#QuejasRespuesta').val() : ($('#QuejasEstatus').val() === '2' ? false : ''),
+                    QuejasNumPenal: $('#QuejasNumPenal').val().trim() !== '' ? $('#QuejasNumPenal').val() : '',
+                    QuejasPenalizacion: $('#QuejasPenalizacion').val()
                 };
 
+                if (!validateForm(complaintData));
+                if (!checkInvalid()) return;
+
                 try {
-                    const response = await fetch('https://api.condusef.gob.mx/redeco/quejas', {
+                    const response = await fetch('/.netlify/functions/complaint/send', {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(complaintData)
                     });
 
                     const result = await response.json();
-
                     if (response.ok) {
-                        document.getElementById('responseDisplay').innerText = 'Respuesta: ' + JSON.stringify(result);
+                        $('#spinner').addClass('d-none');
+                        Swal.fire({
+                            title: "Éxito",
+                            html: `Se envio correctamente la queja.`,
+                            icon: "success"
+                        });
+                        $('#sendComplaintsForm').trigger("reset");
                     } else {
-                        document.getElementById('responseDisplay').innerText = 'Error: ' + JSON.stringify(result.errors);
+                        $('#spinner').addClass('d-none');
+                        Swal.fire({
+                            title: "Error",
+                            text: `${result.message || response.statusText}`,
+                            icon: "error"
+                        });
                     }
                 } catch (error) {
+                    $('#spinner').addClass('d-none');
                     console.error('Error:', error);
                 }
             });
@@ -417,10 +463,122 @@ function initSectionLogic(sectionId) {
                     cargarCatalogoSelect(coloniasAPI, localidadInput, 'colonias', 'tipoLocalidadId', 'tipoLocalidad', 'QuejasLocId', true, coloniaId, municipioId);
                 }
             });
+
+            $('#QuejasTipoPersona').on('change', function () {
+                if ($(this).val() == '2') {
+                    $('#QuejasSexo').attr('disabled', true);
+                    $('#QuejasSexo').val('');
+                    $('#QuejasEdad').attr('disabled', true);
+                    $('#QuejasEdad').val('');
+                } else {
+                    $('#QuejasSexo').attr('disabled', false);
+                    $('#QuejasEdad').attr('disabled', false);
+                }
+            });
+
+            $('#QuejasEstatus').on('change', function () {
+                if ($(this).val() == '1') {
+                    $('#QuejasRespuesta').attr('disabled', true);
+                    $('#QuejasRespuesta').val('');
+                } else {
+                    $('#QuejasRespuesta').attr('disabled', false);
+                }
+            });
             break;
         case 'findComplaints':
+            const dateNow = new Date();
+            const currentYear = dateNow.getFullYear();
+            let arrYears = [];
+            for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+                arrYears.push(i.toString());
+            }
+            const selectElement = document.getElementById('año');
+
+            arrYears.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                selectElement.appendChild(option);
+            });
+
+            $('#btnBuscar').on('click', function (e) {
+                e.preventDefault();
+                var year = $('#año').val();
+                var month = $('#mes').val();
+                if (year !== '' && month !== '') {
+                    buscarQueja(year, month);
+                    $('.container-table100').show();
+                } else if (month === '') {
+                    $('#mes').focus();
+                    $('#mes').addClass('is-invalid');
+                } else {
+                    $('#año').focus();
+                    $('#año').addClass('is-invalid');
+                }
+            });
+
+            $('#año,#mes').on('change', function () {
+                $('.container-table100').hide();
+            });
             break;
         case 'delComplaints':
+            $('#delComplaintsForm').on('submit', function (e) {
+                e.preventDefault();
+                var folio = $('#quejaId').val().trim();
+                if (folio !== '') {
+                    Swal.fire({
+                        title: "Advertencia",
+                        html: `¿Está seguro de eliminar la queja <strong>${folio}</strong>?`,
+                        icon: "warning",
+                        confirmButtonColor: "#007f4f",
+                        confirmButtonText: "Si",
+                        showDenyButton: true,
+                        denyButtonText: 'No',
+                    }).then(async (res) => {
+                        if (res.isConfirmed) {
+                            try {
+                                const response = await fetch('/.netlify/functions/complaint/del', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({ folio: folio })
+                                });
+            
+                                const result = await response.json();
+            
+                                if (response.ok) {
+                                    $('#spinner').addClass('d-none');
+                                    Swal.fire({
+                                        title: "Éxito",
+                                        html: `Has eliminado correctamente la queja <strong>${folio}</strong>`,
+                                        icon: "success",
+                                        timer: 4000,
+                                        showConfirmButton: false
+                                    });
+                                    $('#delComplaintsForm')[0].reset();
+                                } else {
+                                    Swal.fire({
+                                        title: "Error",
+                                        text: `${result.message || response.statusText}`,
+                                        icon: "error"
+                                    });
+                                }
+                            } catch (error) {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: `Error al eliminar la queja: ${error.message}`,
+                                    icon: "error"
+                                });
+                                console.error('Error:', error);
+                            }
+                        }
+                    });
+                } else {
+                    $('#quejaId').focus();
+                    $('#quejaId').addClass('is-invalid');
+                }
+            });
             break;
         case 'catalogos/mediosRecepcion':
             const mrAPI = "https://api.condusef.gob.mx/catalogos/medio-recepcion";
@@ -434,7 +592,6 @@ function initSectionLogic(sectionId) {
             cargarProductos();
             break;
         case 'catalogos/causas':
-            $('.container-table100').show();
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
                 var clvProd = $('#clvProd').val();
@@ -567,12 +724,11 @@ function initSectionLogic(sectionId) {
                         asunto: asunto,
                         mensaje: mensaje
                     };
-                    console.log(templateParams);
 
                     emailjs.send('ser_v.gx632*#rdc', 'temp_b9emfep*.#rdc', templateParams)
                         .then(function (response) {
                             if (response.ok) {
-                                Swal.fire({ title: 'Exito', text: '¡Gracias! Tu mensaje ha sido enviado.', icon: 'success' });
+                                Swal.fire({ title: 'Éxito', text: '¡Gracias! Tu mensaje ha sido enviado.', icon: 'success' });
                             } else {
                                 Swal.fire({ title: 'Error', text: 'Hubo un error al enviar el mensaje. Inténtalo de nuevo más tarde.', icon: 'error' });
                             }
@@ -635,7 +791,7 @@ function cargarCatalogo(url, key, columns, table) {
         .catch(error => console.error('Error al cargar el catálogo:', error));
 }
 
-function cargarCatalogoWH(data, key, columns, table) {
+function cargarCatalogoWD(data, key, columns, table) {
     const dataRet = data[key].map(item => columns.map(col => item[col]));
     setTable(dataRet, table);
 }
@@ -644,10 +800,10 @@ async function cargarProductos() {
     const prodCache = sessionStorage.getItem('product-list');
     if (prodCache) {
         const data = JSON.parse(prodCache);
-        cargarCatalogoWH(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+        cargarCatalogoWD(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
     } else {
         try {
-            const response = await fetch('/.netlify/functions/auth/product', {
+            const response = await fetch('/.netlify/functions/catalog/product', {
                 method: 'GET',
             });
 
@@ -657,7 +813,7 @@ async function cargarProductos() {
 
             const data = await response.json();
             sessionStorage.setItem('product-list', JSON.stringify(data));
-            cargarCatalogoWH(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+            cargarCatalogoWD(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
         } catch (error) {
             console.error('Error al cargar los productos:', error);
             Swal.fire({
@@ -675,11 +831,11 @@ async function cargarCausas(prodId) {
     const causasCache = sessionStorage.getItem('causas-list');
     if (causasCache) {
         const data = JSON.parse(causasCache);
-        cargarCatalogoWH(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+        cargarCatalogoWD(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
     } else {
         try {
-            const response = await fetch('/.netlify/functions/auth/causas', {
-                method: 'GET',
+            const response = await fetch('/.netlify/functions/catalog/causas', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -692,17 +848,45 @@ async function cargarCausas(prodId) {
 
             const data = await response.json();
             sessionStorage.setItem('causas-list', JSON.stringify(data));
-            cargarCatalogoWH(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+            cargarCatalogoWD(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
         } catch (error) {
-            console.error('Error al cargar los productos:', error);
+            console.error('Error al cargar las causas:', error);
             Swal.fire({
                 title: 'Error',
-                text: 'Hubo un error al cargar el catálogo de productos.',
+                text: 'Hubo un error al cargar el catálogo de causas.',
                 icon: 'error'
             }).then((result) => {
                 if (result.isConfirmed) window.location.href = 'index.html';
             });
         }
+    }
+}
+
+async function buscarQueja(year, month) {
+    try {
+        const response = await fetch('/.netlify/functions/complaint/find', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ year: year, month: month })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error en la solicitud:${response.statusText})`);
+        }
+
+        const data = await response.json();
+        cargarCatalogoWD(data, 'queja', ["quejaId", "quejaDes"], 'catalogoQuejas');
+    } catch (error) {
+        console.error('Error al cargar la queja:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Hubo un error al cargar la queja.',
+            icon: 'error'
+        }).then((result) => {
+            if (result.isConfirmed) window.location.href = 'index.html';
+        });
     }
 }
 

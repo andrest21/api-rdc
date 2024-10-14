@@ -5,10 +5,8 @@ const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const Institution = require('../models/Institution');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
-const https = require('https');//QUITAR EN PROD
 // Inicializar variables de entorno
 dotenv.config();
 
@@ -45,18 +43,6 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Sesión cerrada correctamente' });
 });
 
-// Ruta para obtener todas las instituciones
-router.get('/institutions', async (req, res) => {
-  try {
-    await connectDB();
-    const institutions = await Institution.find().select('_id institution');
-    res.json(institutions);
-  } catch (error) {
-    console.error('Error al obtener las instituciones:', error);
-    res.status(500).json({ message: 'Error al obtener las instituciones' });
-  }
-});
-
 // Iniciar sesión: Ruta para validar existencia de un superusuario
 router.post('/super-user', async (req, res) => {
   await connectDB();
@@ -72,17 +58,18 @@ router.post('/super-user', async (req, res) => {
         secure: true,     // Solo se envía en HTTPS
         sameSite: 'Strict', // Ayuda a evitar ataques CSRF
         maxAge: 3600000,   // 1 hora de validez,
-        expires: new Date(Date.now() + 3600000) // Expira en 10 segundos (opcional)
+        expires: new Date(Date.now() + 3600000)
       });
       const userInfo = {
         username: user.username,
         institution: user.id_institution
       };
       res.cookie('userInfo', JSON.stringify(userInfo), {
-        httpOnly: true,  // No Permitimos que el cliente acceda a esta cookie
+        httpOnly: true,
         secure: true,
         sameSite: 'Strict',
-        maxAge: 3600000
+        maxAge: 3600000,
+        expires: new Date(Date.now() + 3600000)
       });
       res.json({ message: 'Login exitoso' });
     } else {
@@ -254,123 +241,14 @@ router.post('/renewal', async (req, res) => {
         new: true
       }
     );
-    console.log(updUser);
     if (updUser) {
-      res.json({ message: 'Token Access Renovado User', token_access });
+      res.json({ message: 'Token Access Renovado User' });
     } else {
       res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar el token' });
     }
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Error al renovar Token Access', error });
-  }
-});
-
-// Ruta para consulta de los usuarios por institución
-router.get('/tokens', async (req, res) => {
-  await connectDB();
-  const uEnc = req.cookies.userInfo;
-  if (!uEnc) {
-    return res.status(400).json({ message: 'No hay información del usuario' });
-  }
-  const uI = JSON.parse(decodeURIComponent(uEnc));
-
-  try {
-    const users = await User.find({ id_institution: uI.institution, user_type: 'user_gen' })
-      .select('createdAt updatedAt username token_access date_token_created')
-      .exec();
-
-    if (users.length > 0) {
-      const usersWithVigency = users.map(user => {
-        const tokenCreatedDate = new Date(user.date_token_created);
-        const expirationDate = new Date(tokenCreatedDate);
-        expirationDate.setDate(tokenCreatedDate.getDate() + 29);
-        const remainingDays = Math.ceil((expirationDate - Date.now()) / (1000 * 60 * 60 * 24));
-
-        const localDateCreated = new Date(user.createdAt).toLocaleDateString("en-GB");
-        const localDateUpdated = new Date(user.updatedAt).toLocaleDateString("en-GB");
-
-        return {
-          date_created: localDateCreated,
-          updatedAt: localDateUpdated,
-          username: user.username,
-          token_access: user.token_access,
-          remaining_days: remainingDays > 0 ? remainingDays : 0
-        };
-      });
-      res.json({ tokens: usersWithVigency });
-    } else {
-      res.status(404).json({ message: 'No existen registros.' });
-    }
-  } catch (error) {
-    console.error('Error al consultar registros:', error);
-    res.status(500).json({ message: 'Error al consultar registros.', error });
-  }
-});
-
-// Ruta para consulta de catalogo de productos
-router.get('/product', async (req, res) => {
-  try {
-    const uEnc = req.cookies.userInfo;
-    if (!uEnc) {
-      return res.status(400).json({ message: 'No hay información del usuario' });
-    }
-    const uI = JSON.parse(decodeURIComponent(uEnc));
-    const token_access = uI.token_access;
-    const agent = new https.Agent({ rejectUnauthorized: false });
-
-    const apiResponse = await fetch('https://api.condusef.gob.mx/catalogos/products-list', {
-      method: 'GET',
-      headers: {
-        'Authorization': `${token_access}`,
-        'Content-Type': 'application/json'
-      },
-      agent: agent
-    });
-
-    const result = await apiResponse.json();
-    if (!apiResponse.ok) {
-      return res.status(400).json({ message: 'Error en la API', details: result });
-    }
-
-    res.json(result);
-
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Error al consultar lista de productos', error });
-  }
-});
-
-// Ruta para consulta de catalogo de causas
-router.get('/causas', async (req, res) => {
-  try {
-    const uEnc = req.cookies.userInfo;
-    if (!uEnc) {
-      return res.status(400).json({ message: 'No hay información del usuario' });
-    }
-    const uI = JSON.parse(decodeURIComponent(uEnc));
-    const token_access = uI.token_access;
-    const agent = new https.Agent({ rejectUnauthorized: false });
-
-    const apiResponse = await fetch('api.condusef.gob.mx/catalogos/causas-list/?product=' + id_prod, {
-      method: 'GET',
-      headers: {
-        'Authorization': `${token_access}`,
-        'Content-Type': 'application/json'
-      },
-      agent: agent
-    });
-
-    const result = await apiResponse.json();
-    if (!apiResponse.ok) {
-      return res.status(400).json({ message: 'Error en la API', details: result });
-    }
-
-    res.json(result);
-
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Error al consultar lista de causas', error });
   }
 });
 

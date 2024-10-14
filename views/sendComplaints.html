@@ -54,7 +54,7 @@
         </div>
         <div class="row">
             <!-- Medio de recepción o canal -->
-            <div class="mb-3 col-6">
+            <div class="mb-3 col-3">
                 <label for="QuejasMedio" class="form-label">Medio de recepción o canal</label>
                 <select class="form-select" id="QuejasMedio" required>
                     <option value="">Seleccione una opción</option>
@@ -62,21 +62,19 @@
             </div>
 
             <!-- Nivel de atención o contacto -->
-            <div class="mb-3 col-6">
+            <div class="mb-3 col-3">
                 <label for="QuejasNivelAT" class="form-label">Nivel de atención o contacto</label>
                 <select class="form-select" id="QuejasNivelAT" required>
                     <option value="">Seleccione una opción</option>
                 </select>
             </div>
-        </div>
-        <div class="row">
             <!-- Producto y/o Servicio -->
-            <div class="mb-3 col-6">
+            <div class="mb-3 col-3">
                 <label for="QuejasProducto" class="form-label">Producto y/o Servicio</label>
                 <input type="text" class="form-control" id="QuejasProducto" maxlength="12" required>
             </div>
             <!-- Causa de la queja -->
-            <div class="mb-3 col-6">
+            <div class="mb-3 col-3">
                 <label for="QuejasCausa" class="form-label">Causa de la queja</label>
                 <input type="text" class="form-control" id="QuejasCausa" maxlength="4" required>
             </div>
@@ -147,7 +145,8 @@
             <!-- Sexo -->
             <div class="mb-3 col-4">
                 <label for="QuejasSexo" class="form-label">Sexo</label>
-                <select class="form-select" id="QuejasSexo" required>
+                <select class="form-select" id="QuejasSexo">
+                    <option value="">Seleccione una opción</option>
                     <option value="M">Hombre</option>
                     <option value="F">Mujer</option>
                 </select>
@@ -155,24 +154,25 @@
             <!-- Edad -->
             <div class="mb-3 col-4">
                 <label for="QuejasEdad" class="form-label">Edad</label>
-                <input type="text" class="form-control numerico" id="QuejasEdad" placeholder="18" required>
+                <input type="text" class="form-control edadInputMask" id="QuejasEdad">
             </div>
         </div>
         <div class="row">
             <!-- Fecha de resolución -->
             <div class="mb-3 col-4">
                 <label for="QuejasFecResolucion" class="form-label">Fecha de resolución</label>
-                <input type="date" class="form-control" id="QuejasFecResolucion" required>
+                <input type="date" class="form-control" id="QuejasFecResolucion">
             </div>
             <!-- Fecha de notificación -->
             <div class="mb-3 col-4">
                 <label for="QuejasFecNotificacion" class="form-label">Fecha en la que se notificó al usuario</label>
-                <input type="date" class="form-control" id="QuejasFecNotificacion" required>
+                <input type="date" class="form-control" id="QuejasFecNotificacion">
             </div>
             <!-- Sentido de la resolución -->
             <div class="mb-3 col-4">
                 <label for="QuejasRespuesta" class="form-label">Sentido de la resolución</label>
-                <select class="form-select" id="QuejasRespuesta" required>
+                <select class="form-select" id="QuejasRespuesta" disabled>
+                    <option value="">Seleccione una opción</option>
                     <option value="1">Totalmente favorable al usuario</option>
                     <option value="2">Desfavorable al usuario</option>
                     <option value="3">Parcialmente favorable al usuario</option>
@@ -183,12 +183,13 @@
             <!-- Número de penalización -->
             <div class="mb-3 col-4">
                 <label for="QuejasNumPenal" class="form-label">Número de penalización</label>
-                <input type="text" class="form-control numerico" id="QuejasNumPenal">
+                <input type="text" class="form-control numerico" id="QuejasNumPenal" maxlength="4">
             </div>
             <!-- Tipo de penalización -->
             <div class="mb-3 col-8">
                 <label for="QuejasPenalizacion" class="form-label">Tipo de penalización</label>
                 <select class="form-select" id="QuejasPenalizacion">
+                    <option value="">Seleccione una opción</option>
                     <option value="1">Contractuales - Cancelación del contrato</option>
                     <option value="2">Contractuales - Reasignación de cartera</option>
                     <option value="3">Económicas - Multa</option>
