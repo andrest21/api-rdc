@@ -7,6 +7,14 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
+const https = require('https');
+const fs = require('fs');
+const axios = require('axios');
+
+// Carga el certificado
+const agent = new https.Agent({
+  ca: fs.readFileSync('./certs/condusef-gob-mx-chain.pem')
+});
 // Inicializar variables de entorno
 dotenv.config();
 
@@ -46,10 +54,15 @@ router.post('/logout', (req, res) => {
 // Iniciar sesión: Ruta para validar existencia de un superusuario
 router.post('/super-user', async (req, res) => {
   await connectDB();
-  const { username, password } = req.body;
-  if (!username || !password) return res.status(400).json({ message: 'Faltan datos' });
-  const user = await User.findOne({ user_type: "user_admin", username }).exec();
+  const { id_institution, username, password } = req.body;
+  console.log(req.body);
+  if (!id_institution || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
+  const user = await User.findOne({ id_institution, user_type: "user_admin", username }).exec();
+  console.log(user);
   if (user) {
+    if (user.changePass){
+      return res.status(773).json({ message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
+    }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       const token = generateToken(user);
@@ -121,23 +134,37 @@ router.post('/create-super-user', async (req, res) => {
   const { key, username, password, confirm_password } = req.body;
   if (!key || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
   if (password !== confirm_password) return res.status(400).json({ message: 'Las contraseñas no coinciden' });
+  const uEnc = req.cookies.userInfo;
+  if (!uEnc) {
+    return res.status(400).json({ message: 'No hay información del usuario' });
+  }
+  const uI = JSON.parse(decodeURIComponent(uEnc));
+  await connectDB();
+  const user = await User.findOne({ id_institution: uI.institution, user_type: "user_admin", username }).exec();
+  if (!user) {
+    return res.status(404).json({ message: 'Nombre de administrador no encontrado' });
+  } 
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: 'Contraseña incorrecta' });
+  }
   try {
-    // const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-super-user/', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ key, username, password, confirm_password })
-    // });
+    const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-super-user/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ key, username, password, confirm_password }),
+      agent
+    });
 
-    // const result = await apiResponse.json();
+    const result = await apiResponse.json();
 
-    // if (!apiResponse.ok) {
-    //   return res.status(400).json({ message: 'Error en la API', details: result });
-    // }
+    if (!apiResponse.ok) {
+      return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+    }
 
-    // const token_access = result.token_access;
-    const token_access = 'esto-es-prueba';
+    const token_access = result.token_access;
 
     res.json({ message: 'Superusuario creado', token_access });
   } catch (error) {
@@ -149,8 +176,8 @@ router.post('/create-super-user', async (req, res) => {
 // Ruta para crear un usuario y obtener el token_access
 router.post('/create-user', async (req, res) => {
   await connectDB();
-  const { token_access, username, password, confirm_password } = req.body;
-  if (!token_access || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
+  const { su_ta, username, password, confirm_password } = req.body;
+  if (!su_ta || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
   if (password !== confirm_password) return res.status(400).json({ message: 'Las contraseñas no coinciden' });
   const uEnc = req.cookies.userInfo;
   if (!uEnc) {
@@ -158,36 +185,37 @@ router.post('/create-user', async (req, res) => {
   }
   const uI = JSON.parse(decodeURIComponent(uEnc));
   try {
-    // const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-user/', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `${token_access}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ username, password, confirm_password })
-    // });
+    const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-user/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `${su_ta}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password, confirm_password }),
+      agent
+    });
 
-    // const result = await apiResponse.json();
+    const result = await apiResponse.json();
 
-    // if (!apiResponse.ok) {
-    //   return res.status(400).json({ message: 'Error en la API', details: result });
-    // }
+    if (!apiResponse.ok) {
+      return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+    }
 
-    // const token_access = result.token_access;
-    const token_access = 'testToken';
+    const token_access = result["data"].token_access;
     // Guardar el superusuario en MongoDB con el token_access
-    // const hashedPassword = await bcrypt.hash(password, 10);
-    // const newUser = new User({
-    //   id_institution:uI.id_institution,
-    //   user_type: 'user_gen',
-    //   username,
-    //   password: hashedPassword,
-    //   token_access
-    // });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      id_institution:uI.institution,
+      user_type: 'user_gen',
+      username,
+      password: hashedPassword,
+      token_access,
+      date_token_created: new Date()
+    });
 
-    // await newUser.save();
+    await newUser.save();
 
-    res.json({ message: 'Usuario creado' });
+    res.json({ message: 'El usuario ha sido creado exitosamente!' });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Error al crear usuario', error });
@@ -204,23 +232,45 @@ router.post('/renewal', async (req, res) => {
     return res.status(400).json({ message: 'No hay información del usuario' });
   }
   const uI = JSON.parse(decodeURIComponent(uEnc));
+  
+  const user = await User.findOne({ id_institution: uI.institution, username }).select('user_type password').exec();
+  if (!user) {
+    return res.status(404).json({ message: 'Usuario no encontrado' });
+  }
+  user_t = "user_gen"
+  if (isA == '1'){
+    user_t = "user_admin"
+  }
+  if (user.user_type !== user_t){
+    return res.status(400).json({ message: 'Tipo de usuario incorrecto' });
+  } 
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).json({ message: 'Contraseña incorrecta' });
+  }
+  
   try {
-    // const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/token/', {
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ username, password })
-    // });
+    const apiResponse = await axios.get('https://api.condusef.gob.mx/auth/users/token/', {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        username,
+        password
+      },
+      httpsAgent: agent
+    });
 
-    // const result = await apiResponse.json();
+    const result = apiResponse.data;
 
-    // if (!apiResponse.ok) {
-    //   return res.status(400).json({ message: 'Error en la API', details: result });
-    // }
+    if (apiResponse.status !== 200) {
+      return res
+        .status(400)
+        .json({ message: `Error en la API: ${result.msg}`, details: result });
+    }
 
-    // const token_access = result.token_access;
-    const token_access = 'testToken2';
+    const token_access = result["user"].token_access;
+    
     if (isA == '1') {
       return res.json({ message: 'Token Access Renovado Admin', token_access });
     }
@@ -247,8 +297,8 @@ router.post('/renewal', async (req, res) => {
       res.status(404).json({ message: 'Usuario no encontrado o no se pudo actualizar el token' });
     }
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Error al renovar Token Access', error });
+    console.error('Error:', error.response?.data || error.message);
+    res.status(500).json({ message: 'Error al renovar Token Access', error: error.response?.data || error.message });
   }
 });
 

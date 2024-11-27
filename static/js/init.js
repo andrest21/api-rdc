@@ -113,6 +113,7 @@ function initLogin() {
         $('#spinner').removeClass('d-none');
         if (this.id == 'loginFormInst') {
             user = {
+                "id_institution": document.getElementById('institucion').value,
                 "username": document.getElementById('superUsername').value.trim(),
                 "password": document.getElementById('superUserPassword').value
             };
@@ -136,6 +137,7 @@ function initLogin() {
             body: JSON.stringify(user)
         });
         const result = await valid.json();
+        console.log(result);
         if (valid.ok) {
             sessionStorage.setItem('username', user.username);
             checkAuth(true)
@@ -146,6 +148,7 @@ function initLogin() {
                     sessionStorage.removeItem('is_admin');
                     sessionStorage.removeItem('username');
                     sessionStorage.removeItem('log');
+                    console.log(errorCode);
                     messageErrorHandler(errorCode);
                     setTimeout(() => {
                         loadContent('views/login.html');
@@ -263,8 +266,8 @@ function cargarInsSelect(data) {
     select.setAttribute("style", "color:#929292;");
     data.forEach(institution => {
         const option = document.createElement('option');
-        option.value = institution._id;
-        option.text = institution.institution;
+        option.value = institution.id_institution;
+        option.text = institution.institution_desc;
         select.appendChild(option);
     });
 
