@@ -2,7 +2,7 @@
 body {
     display: flex;
     flex-direction: column;
-    font-family: 'Tahoma', sans-serif;
+    font-family: 'Tahoma', sans-serif !important;
     background-color: #f4f4f4;
     margin: 0;
     padding-top: 15px;
@@ -11,16 +11,16 @@ body {
 }
 
 #app {
-    flex-grow: 1;
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1 !important;
+    padding-top: 10px !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 #seccionDinamica{
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 h1 {

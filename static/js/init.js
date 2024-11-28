@@ -97,7 +97,7 @@ function initLogin() {
         $('.tab-content > div').removeClass('active');
         $(target).addClass('active');
     });
-    cargarInst();
+    
     $('#loginFormInst,#loginFormUser').on('submit', async function (e) {
         e.preventDefault();
         if ($('.is-invalid').length > 0) {
@@ -113,17 +113,17 @@ function initLogin() {
         $('#spinner').removeClass('d-none');
         if (this.id == 'loginFormInst') {
             user = {
-                "id_institution": document.getElementById('institucion').value,
+                "id_institution": document.getElementById('institucion').value.trim(),
                 "username": document.getElementById('superUsername').value.trim(),
-                "password": document.getElementById('superUserPassword').value
+                "password": document.getElementById('superUserPassword').value.trim()
             };
             url = '/.netlify/functions/auth/super-user';
             sessionStorage.setItem('is_admin', 1);
         } else {
             user = {
-                "id_institution": document.getElementById('institucion').value,
+                "id_institution": document.getElementById('institucion').value.trim(),
                 "username": document.getElementById('usernameUser').value.trim(),
-                "password": document.getElementById('passwordUser').value
+                "password": document.getElementById('passwordUser').value.trim()
             };
             url = '/.netlify/functions/auth/user';
             sessionStorage.setItem('is_admin', 0);
@@ -137,7 +137,7 @@ function initLogin() {
             body: JSON.stringify(user)
         });
         const result = await valid.json();
-        console.log(result);
+
         if (valid.ok) {
             sessionStorage.setItem('username', user.username);
             checkAuth(true)
@@ -148,7 +148,7 @@ function initLogin() {
                     sessionStorage.removeItem('is_admin');
                     sessionStorage.removeItem('username');
                     sessionStorage.removeItem('log');
-                    console.log(errorCode);
+
                     messageErrorHandler(errorCode);
                     setTimeout(() => {
                         loadContent('views/login.html');
@@ -243,47 +243,8 @@ function initMain() {
     });
 }
 
-// Inicializar catálogo de instituciones
-function cargarInst() {
-    const insCache = sessionStorage.getItem('inst');
-    if (insCache) {
-        const data = JSON.parse(insCache);
-        cargarInsSelect(data);
-    } else {
-        fetch('/.netlify/functions/catalog/institutions')
-            .then(response => response.json())
-            .then(data => {
-                sessionStorage.setItem('inst', JSON.stringify(data));
-                cargarInsSelect(data);
-            })
-            .catch(error => console.error('Error al cargar las instituciones:', error));
-    }
-}
-
-// Función que carga las instituciones en el select
-function cargarInsSelect(data) {
-    const select = document.getElementById('institucion');
-    select.setAttribute("style", "color:#929292;");
-    data.forEach(institution => {
-        const option = document.createElement('option');
-        option.value = institution.id_institution;
-        option.text = institution.institution_desc;
-        select.appendChild(option);
-    });
-
-    select.addEventListener("change", function () {
-        let selectedOption = this.options[select.selectedIndex];
-        if (selectedOption.value !== '*') {
-            select.setAttribute("style", "color:white;");
-        } else {
-            select.setAttribute("style", "color:#929292;");
-        }
-
-    });
-}
-
 window.onerror = function (msg, url, lineNo, columnNo, error) {
-    console.log("Error detectado: ", msg);
+    console.error("Error detectado: ", msg);
     borrarCookies();
 };
 

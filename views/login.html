@@ -163,15 +163,11 @@
             <form id="loginFormInst" autocomplete="off">
                 <h3>Login Administrador</h3>
                 <label for="institucion">Institución</label>
-                <select id="institucion" style="color:#929292" required>
-                    <option value="*">Seleccione la institucion a la que pertenece</option>
-                </select>
+                <input type="text" placeholder="Ingrese el ID de la Institución a la que pertenece" id="institucion" required>
                 <label for="superUsername">Nombre de Administrador</label>
-                <input type="text" placeholder="Nombre de Administrador" id="superUsername" required>
+                <input type="text" placeholder="Ingrese el Nombre de Administrador" id="superUsername" required>
                 <label for="superUserPassword">Contraseña</label>
-                <input type="password"
-                    placeholder="Contraseña"
-                    id="superUserPassword" required>
+                <input type="password" placeholder="Ingrese la Contraseña" id="superUserPassword" required>
                 <button type="submit">Log In</button>
             </form>
         </div>
@@ -179,13 +175,11 @@
             <form id="loginFormUser" autocomplete="off">
                 <h3>Login Usuario</h3>
                 <label for="institucion">Institución</label>
-                <select id="institucion" style="color:#929292" required>
-                    <option value="*">Seleccione la institucion a la que pertenece</option>
-                </select>
+                <input type="text" placeholder="Ingrese el ID de la Institución a la que pertenece" id="institucion" required>
                 <label for="usernameUser">Usuario</label>
-                <input type="text" placeholder="Nombre de Usuario" id="usernameUser">
+                <input type="text" placeholder="Ingrese el Nombre de Usuario" id="usernameUser">
                 <label for="passwordUser">Contraseña</label>
-                <input type="password" placeholder="Contraseña" id="passwordUser">
+                <input type="password" placeholder="Ingrese la Contraseña" id="passwordUser">
                 <button type="submit">Log In</button>
             </form>
         </div>
