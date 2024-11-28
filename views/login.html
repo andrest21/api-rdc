@@ -155,13 +155,17 @@
 
 <div id="contenedorForm">
     <ul class="tab-group">
-        <li class="tab active"><a id="inst" href="#instLog">Institución</a></li>
+        <li class="tab active"><a id="inst" href="#instLog">Administrador</a></li>
         <li class="tab"><a id="user" href="#userLog">Usuario</a></li>
     </ul>
     <div class="tab-content">
         <div id="instLog" class="active">
             <form id="loginFormInst" autocomplete="off">
-                <h3>Login Institución</h3>
+                <h3>Login Administrador</h3>
+                <label for="institucion">Institución</label>
+                <select id="institucion" style="color:#929292" required>
+                    <option value="*">Seleccione la institucion a la que pertenece</option>
+                </select>
                 <label for="superUsername">Nombre de Administrador</label>
                 <input type="text" placeholder="Nombre de Administrador" id="superUsername" required>
                 <label for="superUserPassword">Contraseña</label>
@@ -175,7 +179,7 @@
             <form id="loginFormUser" autocomplete="off">
                 <h3>Login Usuario</h3>
                 <label for="institucion">Institución</label>
-                <select id="institucion" required>
+                <select id="institucion" style="color:#929292" required>
                     <option value="*">Seleccione la institucion a la que pertenece</option>
                 </select>
                 <label for="usernameUser">Usuario</label>

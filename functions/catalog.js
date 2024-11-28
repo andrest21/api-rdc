@@ -18,7 +18,7 @@ const router = express.Router();
 router.get('/institutions', async (req, res) => {
     try {
         await connectDB();
-        const institutions = await Institution.find().select('_id institution');
+        const institutions = await Institution.find().select('id_institution institution_desc');
         res.json(institutions);
     } catch (error) {
         console.error('Error al obtener las instituciones:', error);

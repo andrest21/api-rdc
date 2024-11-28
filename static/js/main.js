@@ -189,6 +189,7 @@ function initSectionLogic(sectionId) {
                             });
                         }
                     } catch (error) {
+                        $('#spinner').addClass('d-none');
                         console.error('Error:', error);
                     }
                 }
@@ -202,7 +203,7 @@ function initSectionLogic(sectionId) {
                 if (validForm) {
                     $('#spinner').removeClass('d-none');
                     const newUser = {
-                        "token_access": document.getElementById('instTokenAccess').value,
+                        "su_ta": document.getElementById('instTokenAccess').value,
                         "username": document.getElementById('newUsername').value,
                         "password": document.getElementById('newPassword').value,
                         "confirm_password": document.getElementById('confirmNewPassword').value,
@@ -220,11 +221,12 @@ function initSectionLogic(sectionId) {
                             $('#spinner').addClass('d-none');
                             Swal.fire({
                                 title: "Éxito",
-                                html: `Usuario Creado Correctamente`,
+                                html: `El usuario ha sido creado exitosamente!`,
                                 icon: "success"
                             });
                             $('#createUserForm').trigger("reset");
                         } else {
+                            $('#spinner').addClass('d-none');
                             Swal.fire({
                                 title: "Error",
                                 text: `${result.message || response.statusText}`,
@@ -232,6 +234,7 @@ function initSectionLogic(sectionId) {
                             });
                         }
                     } catch (error) {
+                        $('#spinner').addClass('d-none');
                         console.error('Error:', error);
                         Swal.fire({
                             title: "Error",
@@ -681,16 +684,16 @@ function initSectionLogic(sectionId) {
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
                 // Obtener los valores de los campos
-                const nombre = $('#nameContacto').val();
-                const email = $('#emailContacto').val();
-                const asunto = $('#asuntoContacto').val();
-                const mensaje = $('#mensajeContacto').val();
+                const nombre = $('#nameContacto').val().trim();
+                const email = $('#emailContacto').val().trim();
+                const asunto = $('#asuntoContacto').val().trim();
+                const mensaje = $('#mensajeContacto').val().trim();
 
                 // Limpiar mensajes de error
                 $('input, textarea, select').removeClass('is-invalid');
 
                 // Validar que los campos no estén vacíos
-                if (nombre === '') {
+                if (nombre === '' || nombre === null) {
                     valid = false;
                     $('#nameContacto').addClass('is-invalid');
                 }
@@ -700,18 +703,19 @@ function initSectionLogic(sectionId) {
                     $('#emailContacto').addClass('is-invalid');
                 }
 
-                if (asunto === '') {
+                if (asunto === '' || asunto === null) {
                     valid = false;
                     $('#asuntoContacto').addClass('is-invalid');
                 }
 
-                if (mensaje === '') {
+                if (mensaje === '' || mensaje === null) {
                     valid = false;
                     $('#mensajeContacto').addClass('is-invalid');
                 }
 
                 // Si la validación es exitosa
                 if (valid) {
+                    $('#spinner').removeClass('d-none');
                     // Enviar los datos del formulario
                     const nombre = $('#nameContacto').val();
                     const email = $('#emailContacto').val();
@@ -727,13 +731,17 @@ function initSectionLogic(sectionId) {
 
                     emailjs.send('ser_v.gx632*#rdc', 'temp_b9emfep*.#rdc', templateParams)
                         .then(function (response) {
-                            if (response.ok) {
-                                Swal.fire({ title: 'Éxito', text: '¡Gracias! Tu mensaje ha sido enviado.', icon: 'success' });
+                            $('#spinner').addClass('d-none');
+                            console.log(response);
+                            if (response.status === 200) {
+                                Swal.fire({ title: 'Éxito', text: '¡Gracias! Tu mensaje ha sido enviado, en breve nos comunicaremos contigo.', icon: 'success' });
                             } else {
                                 Swal.fire({ title: 'Error', text: 'Hubo un error al enviar el mensaje. Inténtalo de nuevo más tarde.', icon: 'error' });
                             }
                             $('#contactoForm')[0].reset();
                         }, function (error) {
+                            $('#spinner').addClass('d-none');
+                            console.error('Error:', error);
                             Swal.fire({ title: 'Error', text: 'Hubo un error al enviar el mensaje. Inténtalo de nuevo más tarde.', icon: 'error' });
                         });
                 } else {
