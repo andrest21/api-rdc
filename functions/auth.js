@@ -18,6 +18,9 @@ const agent = new https.Agent({
 // Inicializar variables de entorno
 dotenv.config();
 
+// Definimos entorno
+const api_prod = process.env.DEBUG ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
+
 // Crear una app Express
 const app = express();
 app.use(express.json());
@@ -55,10 +58,8 @@ router.post('/logout', (req, res) => {
 router.post('/super-user', async (req, res) => {
   await connectDB();
   const { id_institution, username, password } = req.body;
-  console.log(req.body);
   if (!id_institution || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
   const user = await User.findOne({ id_institution, user_type: "user_admin", username }).exec();
-  console.log(user);
   if (user) {
     if (user.changePass){
       return res.status(773).json({ message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
@@ -149,7 +150,7 @@ router.post('/create-super-user', async (req, res) => {
     return res.status(401).json({ message: 'Contraseña incorrecta' });
   }
   try {
-    const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-super-user/', {
+    const apiResponse = await fetch(`${api_prod}/auth/users/create-super-user/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -185,7 +186,7 @@ router.post('/create-user', async (req, res) => {
   }
   const uI = JSON.parse(decodeURIComponent(uEnc));
   try {
-    const apiResponse = await fetch('https://api.condusef.gob.mx/auth/users/create-user/', {
+    const apiResponse = await fetch(`${api_prod}/auth/users/create-user/`, {
       method: 'POST',
       headers: {
         'Authorization': `${su_ta}`,
@@ -250,7 +251,7 @@ router.post('/renewal', async (req, res) => {
   }
   
   try {
-    const apiResponse = await axios.get('https://api.condusef.gob.mx/auth/users/token/', {
+    const apiResponse = await axios.get(`${api_prod}/auth/users/token/`, {
       headers: {
         'Content-Type': 'application/json'
       },

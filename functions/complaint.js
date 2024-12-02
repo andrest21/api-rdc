@@ -1,8 +1,20 @@
+const dotenv = require('dotenv');
 const express = require('express');
 const serverless = require('serverless-http');
 const cookieParser = require('cookie-parser');
 const fetch = require('node-fetch');
+const https = require('https');
+const fs = require('fs');
 
+// Inicializar variables de entorno
+dotenv.config();
+// Definimos entorno
+const api_prod = process.env.DEBUG ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
+
+// Carga el certificado
+const agent = new https.Agent({
+  ca: fs.readFileSync('./certs/condusef-gob-mx-chain.pem')
+});
 // Crear una app Express
 const app = express();
 app.use(express.json());
@@ -15,16 +27,33 @@ const router = express.Router();
 // Ruta para enviar queja
 router.post('/send', async (req, res) => {
     const complaintData = req.body;
+    const numericFields = [
+        'QuejasNoMes', 'QuejasNum', 'QuejasMedio', 'QuejasNivelAT',
+        'QuejasEstatus', 'QuejasEstados', 'QuejasMunId',
+        'QuejasLocId', 'QuejasColId', 'QuejasCP',
+        'QuejasTipoPersona', 'QuejasEdad', 'QuejasRespuesta'
+    ];
+
+    for (const field of numericFields) {
+        if (
+            complaintData[field] !== undefined &&
+            complaintData[field] !== null &&
+            (typeof complaintData[field] !== 'number' || isNaN(complaintData[field]))
+        ) {
+            return res.status(400).json({ message: `El campo ${field} debe ser numérico.` });
+        }
+    }
+
     const fieldsNotRequired = ['QuejasSexo', 'QuejasEdad', 'QuejasFecResolucion', 'QuejasRespuesta', 'QuejasNumPenal', 'QuejasPenalizacion'];
     for (const [key, value] of Object.entries(complaintData)) {
         if (!fieldsNotRequired.includes(key)) {
-            if (value.trim() === '') {
+            if (value === '') {
                 return res.status(400).json({ message: `Faltan datos en el campo ${key}` });
             }
         } else {
             if (
-                (['QuejasSexo', 'QuejasEdad'].includes(key) && complaintData['QuejasTipoPersona'] === '1' && value.trim() === '') ||
-                (key === 'QuejasRespuesta' && complaintData['QuejasEstatus'] === '2' && value.trim() === '')
+                (['QuejasSexo', 'QuejasEdad'].includes(key) && complaintData['QuejasTipoPersona'] === '1' && value === '') ||
+                (key === 'QuejasRespuesta' && complaintData['QuejasEstatus'] === '2' && value === '')
             ) {
                 return res.status(400).json({ message: `Faltan datos en el campo ${key}` });
             }
@@ -38,19 +67,19 @@ router.post('/send', async (req, res) => {
     const uI = JSON.parse(decodeURIComponent(uEnc));
     const token_access = uI.token_access;
     try {
-        const apiResponse = await fetch('https://api.condusef.gob.mx/redeco/quejas', {
+        const apiResponse = await fetch(`${api_prod}/redeco/quejas`, {
             method: 'POST',
             headers: {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ complaintData })
+            body: JSON.stringify([complaintData]),
+            agent
         });
 
         const result = await apiResponse.json();
-
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API', details: result });
+            return res.status(400).json({ message: 'Error en la API:'+ result['errors'][`${complaintData['QuejasFolio']}`], details: result });
         }
 
         res.json({ message: 'Queja Enviada Correctamente' });
@@ -71,21 +100,19 @@ router.post('/find', async (req, res) => {
     const uI = JSON.parse(decodeURIComponent(uEnc));
     const token_access = uI.token_access;
     try {
-        // const apiResponse = await fetch(`https://api.condusef.gob.mx/redeco/quejas/?year=${year}&month=${month}`, {
-        //     method: 'GET',
-        //     headers: {
-        //         'Authorization': `${token_access}`
-        //     }
-        // });
+        const apiResponse = await fetch(`${api_prod}/redeco/quejas/?year=${year}&month=${month}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `${token_access}`
+            },
+            agent
+        });
 
-        // const result = await apiResponse.json();
-
-        // if (!apiResponse.ok) {
-        //     return res.status(400).json({ message: 'Error en la API', details: result });
-        // }
-        console.log(year);
-        console.log(month);
-        const result = true;
+        const result = await apiResponse.json();
+        if (!apiResponse.ok) {
+            return res.status(400).json({ message: 'Error en la API:'+ result.msg, details: result });
+        }
+        
         res.json(result);
     } catch (error) {
         console.error('Error:', error);
@@ -104,20 +131,19 @@ router.post('/del', async (req, res) => {
     const uI = JSON.parse(decodeURIComponent(uEnc));
     const token_access = uI.token_access;
     try {
-        // const apiResponse = await fetch(`https://api.condusef.gob.mx/redeco/quejas/?quejaFolio=${folio}`, {
-        //     method: 'DELETE',
-        //     headers: {
-        //         'Authorization': `${token_access}`,
-        //     }
-        // });
+        const apiResponse = await fetch(`${api_prod}/redeco/quejas/?quejaFolio=${folio}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `${token_access}`,
+            },
+            agent
+        });
 
-        // const result = await apiResponse.json();
+        const result = await apiResponse.json();
 
-        // if (!apiResponse.ok) {
-        //     return res.status(400).json({ message: 'Error en la API', details: result });
-        // }
-        console.log(folio);
-        const result = true;
+        if (!apiResponse.ok) {
+            return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+        }
         res.json(result);
     } catch (error) {
         console.error('Error:', error);

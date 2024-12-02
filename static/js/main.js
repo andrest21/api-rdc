@@ -345,33 +345,52 @@ function initSectionLogic(sectionId) {
             //Submit Quejas
             $('#sendComplaintsForm').on('submit', async function (e) {
                 e.preventDefault();
+
+                const numericFields = [
+                    'QuejasNoMes', 'QuejasNum', 'QuejasMedio', 'QuejasNivelAT',
+                    'QuejasEstatus', 'QuejasEstados', 'QuejasMunId',
+                    'QuejasLocId', 'QuejasColId', 'QuejasCP',
+                    'QuejasTipoPersona', 'QuejasEdad', 'QuejasRespuesta'
+                ];
+
                 const complaintData = {
-                    QuejasDenominacion: $('#QuejasDenominacion').val() !== '' ? $('#QuejasDenominacion').val() : false,
-                    QuejasSector: $('#QuejasSector').val() !== '' ? $('#QuejasSector').val() : false,
-                    QuejasNoMes: $('#QuejasNoMes').val() !== '' ? $('#QuejasNoMes').val() : false,
-                    QuejasNum: $('#QuejasNum').val() !== '' ? $('#QuejasNum').val() : false,
-                    QuejasFolio: $('#QuejasFolio').val() !== '' ? $('#QuejasFolio').val() : false,
-                    QuejasFecRecepcion: $('#QuejasFecRecepcion').val() !== '' ? $('#QuejasFecRecepcion').val() : false,
-                    QuejasMedio: $('#QuejasMedio').val() !== '' ? $('#QuejasMedio').val() : false,
-                    QuejasNivelAT: $('#QuejasNivelAT').val() !== '' ? $('#QuejasNivelAT').val() : false,
-                    QuejasProducto: $('#QuejasProducto').val() !== '' ? $('#QuejasProducto').val() : false,
-                    QuejasCausa: $('#QuejasCausa').val() !== '' ? $('#QuejasCausa').val() : false,
-                    QuejasPORI: $('#QuejasPORI').val() !== '' ? $('#QuejasPORI').val() : false,
-                    QuejasEstatus: $('#QuejasEstatus').val() !== '' ? $('#QuejasEstatus').val() : false,
-                    QuejasEstados: $('#QuejasEstados').val() !== '' ? $('#QuejasEstados').val() : false,
-                    QuejasCP: $('#QuejasCP').val() !== '' ? $('#QuejasCP').val() : false,
-                    QuejasMunId: $('#QuejasMunId').val() !== '' ? $('#QuejasMunId').val() : false,
-                    QuejasColId: $('#QuejasColId').val() !== '' ? $('#QuejasColId').val() : false,
-                    QuejasLocId: $('#hiddenLocId').val() !== '' ? $('#hiddenLocId').val() : '',
-                    QuejasTipoPersona: $('#QuejasTipoPersona').val() !== '' ? $('#QuejasTipoPersona').val() : false,
-                    QuejasSexo: ($('#QuejasSexo').val() !== '') ? $('#QuejasSexo').val() : ($('#QuejasTipoPersona').val() === '1' ? false : ''),
-                    QuejasEdad: $('#QuejasEdad').val() !== '' ? $('#QuejasEdad').val() : '',
-                    QuejasFecResolucion: $('#QuejasFecResolucion').val(),
-                    QuejasFecNotificacion: $('#QuejasFecNotificacion').val(),
-                    QuejasRespuesta: $('#QuejasRespuesta').val() !== '' ? $('#QuejasRespuesta').val() : ($('#QuejasEstatus').val() === '2' ? false : ''),
-                    QuejasNumPenal: $('#QuejasNumPenal').val().trim() !== '' ? $('#QuejasNumPenal').val() : '',
-                    QuejasPenalizacion: $('#QuejasPenalizacion').val()
+                    QuejasDenominacion: $('#QuejasDenominacion').val() || false,
+                    QuejasSector: $('#QuejasSector').val() || false,
+                    QuejasNoMes: parseInt($('#QuejasNoMes').val()) || false,
+                    QuejasNum: parseInt($('#QuejasNum').val()) || false,
+                    QuejasFolio: $('#QuejasFolio').val().trim() || false,
+                    QuejasFecRecepcion: convertDate($('#QuejasFecRecepcion').val()) || false,
+                    QuejasMedio: parseInt($('#QuejasMedio').val()) || false,
+                    QuejasNivelAT: parseInt($('#QuejasNivelAT').val()) || false,
+                    QuejasProducto: $('#QuejasProducto').val().trim() || false,
+                    QuejasCausa: $('#QuejasCausa').val().trim() || false,
+                    QuejasPORI: $('#QuejasPORI').val() || false,
+                    QuejasEstatus: parseInt($('#QuejasEstatus').val()) || false,
+                    QuejasEstados: parseInt($('#QuejasEstados').val()) || false,
+                    QuejasCP: parseInt($('#QuejasCP').val()) || false,
+                    QuejasMunId: parseInt($('#QuejasMunId').val()) || false,
+                    QuejasColId: parseInt($('#QuejasColId').val()) || false,
+                    QuejasLocId: parseInt($('#hiddenLocId').val()) || '',
+                    QuejasTipoPersona: parseInt($('#QuejasTipoPersona').val()) || false,
+                    QuejasSexo: ($('#QuejasSexo').val() || ($('#QuejasTipoPersona').val() === '1' ? false : '')),
+                    QuejasEdad: parseInt($('#QuejasEdad').val()) || '',
+                    QuejasFecResolucion: convertDate($('#QuejasFecResolucion').val()),
+                    QuejasFecNotificacion: convertDate($('#QuejasFecNotificacion').val()),
+                    QuejasRespuesta: parseInt($('#QuejasRespuesta').val()) || ($('#QuejasEstatus').val() === '2' ? false : ''),
+                    QuejasNumPenal: $('#QuejasNumPenal').val().trim() || null,
+                    QuejasPenalizacion: $('#QuejasPenalizacion').val() || null,
                 };
+                
+                for (const field of numericFields) {
+                    if (complaintData[field] !== false && isNaN(complaintData[field])) {
+                        Swal.fire({
+                            title: "Error",
+                            text: `El campo ${field} debe ser numérico.`,
+                            icon: "error"
+                        });
+                        return;
+                    }
+                }
 
                 if (!validateForm(complaintData));
                 if (!checkInvalid()) return;
@@ -390,7 +409,7 @@ function initSectionLogic(sectionId) {
                         $('#spinner').addClass('d-none');
                         Swal.fire({
                             title: "Éxito",
-                            html: `Se envio correctamente la queja.`,
+                            html: `Se envio correctamente la queja!`,
                             icon: "success"
                         });
                         $('#sendComplaintsForm').trigger("reset");
@@ -425,15 +444,16 @@ function initSectionLogic(sectionId) {
 
             //Cargar codigos postales
             $('#QuejasEstados').on('change', function () {
-                const cpAPI = "https://api.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + $('#QuejasEstados').val();
-                const cpSelect = document.getElementById("QuejasCP");
-                $('#QuejasCP').attr('disabled', true);
+                // const cpAPI = "https://api.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + $('#QuejasEstados').val();
+                // const cpSelect = document.getElementById("QuejasCP");
+                $('#QuejasCP').attr('disabled', false);
                 $('#QuejasMunId').attr('disabled', true);
                 $('#QuejasColId').attr('disabled', true);
                 $('#QuejasLocId').attr('disabled', true);
                 $('#QuejasLocId').val('');
                 $('#hiddenLocId').val('');
-                cargarCatalogoSelect(cpAPI, cpSelect, 'codigos_postales', 'codigo_sepomex', 'codigo_sepomex', 'QuejasCP');
+                $('#QuejasCP').val('');
+                // cargarCatalogoSelect(cpAPI, cpSelect, 'codigos_postales', 'codigo_sepomex', 'codigo_sepomex', 'QuejasCP');
             });
 
             //Cargar municipios y colonias
@@ -509,6 +529,7 @@ function initSectionLogic(sectionId) {
                 var year = $('#año').val();
                 var month = $('#mes').val();
                 if (year !== '' && month !== '') {
+                    $('#spinner').removeClass('d-none');
                     buscarQueja(year, month);
                     $('.container-table100').show();
                 } else if (month === '') {
@@ -521,6 +542,7 @@ function initSectionLogic(sectionId) {
             });
 
             $('#año,#mes').on('change', function () {
+                $('#año,#mes').removeClass('is-invalid');
                 $('.container-table100').hide();
             });
             break;
@@ -592,6 +614,7 @@ function initSectionLogic(sectionId) {
             cargarCatalogo(naAPI, 'nivelesDeAtencion', ['nivelDeAtencionId', 'nivelDeAtencionDsc'], 'catalogoNA');
             break;
         case 'catalogos/productos':
+            $('#spinner').removeClass('d-none');
             cargarProductos();
             break;
         case 'catalogos/causas':
@@ -599,6 +622,7 @@ function initSectionLogic(sectionId) {
                 e.preventDefault();
                 var clvProd = $('#clvProd').val();
                 if (clvProd !== '') {
+                    $('#spinner').removeClass('d-none');
                     cargarCausas(clvProd);
                     $('.container-table100').show();
                 } else {
@@ -732,7 +756,6 @@ function initSectionLogic(sectionId) {
                     emailjs.send('ser_v.gx632*#rdc', 'temp_b9emfep*.#rdc', templateParams)
                         .then(function (response) {
                             $('#spinner').addClass('d-none');
-                            console.log(response);
                             if (response.status === 200) {
                                 Swal.fire({ title: 'Éxito', text: '¡Gracias! Tu mensaje ha sido enviado, en breve nos comunicaremos contigo.', icon: 'success' });
                             } else {
@@ -759,7 +782,7 @@ function cargarCatalogoSelect(url, selectElement, key, idField, textField, disab
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            if (data[key] != '') {
+            if (data[key] != '' && !data.error) {
                 selectElement.innerHTML = '<option value="">Seleccione una opción</option>';
                 if (setLocalidad) {
                     selectElement.innerHTML = '';
@@ -793,8 +816,14 @@ function cargarCatalogo(url, key, columns, table) {
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            const dataRet = data[key].map(item => columns.map(col => item[col]))
-            setTable(dataRet, table);
+            if(!data.error){
+                const dataRet = data[key].map(item => columns.map(col => item[col]))
+                setTable(dataRet, table);
+            }else{
+                console.error('Error al cargar el catálogo:', data.error);
+                setTable('',table);
+            }
+            
         })
         .catch(error => console.error('Error al cargar el catálogo:', error));
 }
@@ -808,7 +837,7 @@ async function cargarProductos() {
     const prodCache = sessionStorage.getItem('product-list');
     if (prodCache) {
         const data = JSON.parse(prodCache);
-        cargarCatalogoWD(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+        cargarCatalogoWD(data, 'products', ["productId", "product", "institucion"], 'catalogoProd');
     } else {
         try {
             const response = await fetch('/.netlify/functions/catalog/product', {
@@ -821,8 +850,9 @@ async function cargarProductos() {
 
             const data = await response.json();
             sessionStorage.setItem('product-list', JSON.stringify(data));
-            cargarCatalogoWD(data, 'productos', ["productoId", "productoDes"], 'catalogoProd');
+            cargarCatalogoWD(data, 'products', ["productId", "product", "institucion"], 'catalogoProd');
         } catch (error) {
+            $('#spinner').addClass('d-none');
             console.error('Error al cargar los productos:', error);
             Swal.fire({
                 title: 'Error',
@@ -837,9 +867,10 @@ async function cargarProductos() {
 
 async function cargarCausas(prodId) {
     const causasCache = sessionStorage.getItem('causas-list');
-    if (causasCache) {
+    const productId = sessionStorage.getItem('product-id');
+    if (causasCache && (productId === prodId)) {
         const data = JSON.parse(causasCache);
-        cargarCatalogoWD(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+        cargarCatalogoWD(data, 'causas', ["causaId", "causa", "institucion"], 'catalogoCausas');
     } else {
         try {
             const response = await fetch('/.netlify/functions/catalog/causas', {
@@ -855,9 +886,23 @@ async function cargarCausas(prodId) {
             }
 
             const data = await response.json();
-            sessionStorage.setItem('causas-list', JSON.stringify(data));
-            cargarCatalogoWD(data, 'causas', ["causaId", "causaDes"], 'catalogoCausas');
+            if (response.ok){
+                if (data['causas'].length != 0 )
+                    sessionStorage.setItem('causas-list', JSON.stringify(data));
+                else
+                    sessionStorage.removeItem('causas-list');
+                sessionStorage.setItem('product-id', prodId);
+                cargarCatalogoWD(data, 'causas', ["causaId", "causa", "institucion"], 'catalogoCausas');
+            } else {
+                $('#spinner').addClass('d-none');
+                Swal.fire({
+                    title: "Error",
+                    text: `${data.error || response.statusText}`,
+                    icon: "error"
+                });
+            }
         } catch (error) {
+            $('#spinner').addClass('d-none');
             console.error('Error al cargar las causas:', error);
             Swal.fire({
                 title: 'Error',
@@ -885,8 +930,9 @@ async function buscarQueja(year, month) {
         }
 
         const data = await response.json();
-        cargarCatalogoWD(data, 'queja', ["quejaId", "quejaDes"], 'catalogoQuejas');
+        cargarCatalogoWD(data, 'quejas', ["institucionClave", "folio", "year","month"], 'catalogoQuejas');
     } catch (error) {
+        $('#spinner').addClass('d-none');
         console.error('Error al cargar la queja:', error);
         Swal.fire({
             title: 'Error',
@@ -921,4 +967,8 @@ function setTable(data, table) {
         });
     }
     $('#spinner').addClass('d-none');
+}
+
+function convertDate(fecha){
+    return fecha.split("-").reverse().join("/");
 }

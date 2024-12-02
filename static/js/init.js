@@ -46,6 +46,9 @@ function checkAuth(firstLog, reload = true) {
                                 sessionStorage.removeItem('is_admin');
                                 sessionStorage.removeItem('username');
                                 sessionStorage.removeItem('log');
+                                sessionStorage.removeItem('causas-list');
+                                sessionStorage.removeItem('product-list');
+                                sessionStorage.removeItem('product-id');
                                 fetch('/.netlify/functions/auth/logout', {
                                     method: 'POST',
                                 });
@@ -121,7 +124,7 @@ function initLogin() {
             sessionStorage.setItem('is_admin', 1);
         } else {
             user = {
-                "id_institution": document.getElementById('institucion').value.trim(),
+                "id_institution": document.getElementById('institucion2').value.trim(),
                 "username": document.getElementById('usernameUser').value.trim(),
                 "password": document.getElementById('passwordUser').value.trim()
             };
@@ -200,6 +203,7 @@ function initMain() {
             icon: "warning",
             confirmButtonColor: "#007f4f",
             confirmButtonText: "Si",
+            titleColor: "#fff",
             showDenyButton: true,
             denyButtonText: 'No',
         }).then((res) => {
@@ -285,6 +289,9 @@ checkAuth(false)
     sessionStorage.removeItem('is_admin');
     sessionStorage.removeItem('username');
     sessionStorage.removeItem('log');
+    sessionStorage.removeItem('causas-list');
+    sessionStorage.removeItem('product-list');
+    sessionStorage.removeItem('product-id');
     messageErrorHandler(errorCode);
     setTimeout(() => {
         loadContent('views/login.html');

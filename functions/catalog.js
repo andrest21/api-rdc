@@ -1,3 +1,4 @@
+const dotenv = require('dotenv');
 const express = require('express');
 const serverless = require('serverless-http');
 const cookieParser = require('cookie-parser');
@@ -5,7 +6,18 @@ const Institution = require('../models/Institution');
 const User = require('../models/User');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
-const https = require('https');//QUITAR EN PROD
+const https = require('https');
+const fs = require('fs');
+
+// Inicializar variables de entorno
+dotenv.config();
+// Definimos entorno
+const api_prod = process.env.DEBUG ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
+
+// Carga el certificado
+const agent = new https.Agent({
+  ca: fs.readFileSync('./certs/condusef-gob-mx-chain.pem')
+});
 
 const app = express();
 app.use(express.json());
@@ -77,20 +89,19 @@ router.get('/product', async (req, res) => {
         }
         const uI = JSON.parse(decodeURIComponent(uEnc));
         const token_access = uI.token_access;
-        // const agent = new https.Agent({ rejectUnauthorized: false });//quitar en prod
 
-        const apiResponse = await fetch('https://api.condusef.gob.mx/catalogos/products-list', {
+        const apiResponse = await fetch(`${api_prod}/catalogos/products-list`, {
             method: 'GET',
             headers: {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
             },
-            // agent: agent//quitar en prod
+            agent
         });
 
         const result = await apiResponse.json();
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API', details: result });
+            return res.status(400).json({ message: 'Error en la API:'+result.error, details: result });
         }
 
         res.json(result);
@@ -112,20 +123,19 @@ router.post('/causas', async (req, res) => {
         }
         const uI = JSON.parse(decodeURIComponent(uEnc));
         const token_access = uI.token_access;
-        // const agent = new https.Agent({ rejectUnauthorized: false });
 
-        const apiResponse = await fetch(`https://api.condusef.gob.mx/catalogos/causas-list/?product=${prodId}`, {
+        const apiResponse = await fetch(`${api_prod}/catalogos/causas-list/?product=${prodId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
             },
-            // agent: agent
+            agent
         });
 
         const result = await apiResponse.json();
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API', details: result });
+            return res.status(400).json({ message: 'Error en la API:'+result.error, details: result });
         }
 
         res.json(result);

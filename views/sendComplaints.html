@@ -106,9 +106,7 @@
             <!-- Código Postal -->
             <div class="mb-3 col-3">
                 <label for="QuejasCP" class="form-label">Código Postal</label>
-                <select class="form-select" id="QuejasCP" required disabled>
-                    <option value=""></option>
-                </select>
+                <input type="text" class="form-control" id="QuejasCP" maxlength="5" required disabled>
             </div>
         </div>
         <div class="row">
@@ -147,8 +145,8 @@
                 <label for="QuejasSexo" class="form-label">Sexo</label>
                 <select class="form-select" id="QuejasSexo">
                     <option value="">Seleccione una opción</option>
-                    <option value="M">Hombre</option>
-                    <option value="F">Mujer</option>
+                    <option value="H">Hombre</option>
+                    <option value="M">Mujer</option>
                 </select>
             </div>
             <!-- Edad -->
@@ -197,7 +195,7 @@
             </div>
         </div>
         <!-- Botón para enviar el formulario -->
-        <button type="submit" class="btn btn-success">Enviar Queja</button>
+        <button type="submit" class="button">Enviar Queja</button>
     </form>
     <p id="complaintsResponse"></p>
 </section>
