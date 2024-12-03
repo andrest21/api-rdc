@@ -5,16 +5,18 @@ const cookieParser = require('cookie-parser');
 const fetch = require('node-fetch');
 const https = require('https');
 const fs = require('fs');
+const path = require('path');
+
+// Carga el certificado
+const agent = new https.Agent({
+  ca: fs.readFileSync(path.resolve(__dirname, '../certs/condusef-gob-mx-chain.pem'))
+});
 
 // Inicializar variables de entorno
 dotenv.config();
 // Definimos entorno
 const api_prod = process.env.DEBUG ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
 
-// Carga el certificado
-const agent = new https.Agent({
-  ca: fs.readFileSync('./certs/condusef-gob-mx-chain.pem')
-});
 // Crear una app Express
 const app = express();
 app.use(express.json());
