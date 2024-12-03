@@ -63,7 +63,7 @@ router.post('/super-user', async (req, res) => {
   const user = await User.findOne({ id_institution, user_type: "user_admin", username }).exec();
   if (user) {
     if (user.changePass){
-      return res.status(773).json({ message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
+      return res.status(400).json({ message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
