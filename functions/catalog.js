@@ -6,7 +6,14 @@ const Institution = require('../models/Institution');
 const User = require('../models/User');
 const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
+// Carga el certificado
+const agent = new https.Agent({
+    ca: fs.readFileSync(path.resolve(__dirname, './certs/condusef-gob-mx-chain.pem'))
+  });
 // Inicializar variables de entorno
 dotenv.config();
 // Definimos entorno
@@ -88,7 +95,8 @@ router.get('/product', async (req, res) => {
             headers: {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            agent
         });
 
         const result = await apiResponse.json();
@@ -121,7 +129,8 @@ router.post('/causas', async (req, res) => {
             headers: {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
-            }
+            },
+            agent
         });
 
         const result = await apiResponse.json();

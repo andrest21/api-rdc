@@ -1,5 +1,5 @@
 [build]
-  publish = "."      # Directorio donde están los archivos estáticos (HTML, CSS, JS)
+  publish = "."  # Directorio de archivos estáticos (HTML, CSS, JS)
   functions = "functions" # Directorio donde están las Netlify Functions
 
 [[redirects]]
@@ -13,4 +13,4 @@
   status = 200
 
 [functions]
-  included_files = ["certs/condusef-gob-mx-chain.pem"]
+  included_files = ["functions/certs/condusef-gob-mx-chain.pem"]
