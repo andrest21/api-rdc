@@ -8,11 +8,10 @@ const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
 const https = require('https');
 const fs = require('fs');
-const path = require('path');
 
 // Carga el certificado
 const agent = new https.Agent({
-    ca: fs.readFileSync(path.resolve(__dirname, '../functions/certs/condusef-gob-mx-chain.pem'))
+    ca: fs.readFileSync('./functions/certs/condusef-gob-mx-chain.pem')
 });
 // Inicializar variables de entorno
 dotenv.config();
