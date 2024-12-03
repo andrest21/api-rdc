@@ -428,9 +428,9 @@ function initSectionLogic(sectionId) {
             });
             //Cargar catalogos
             // URLs de las APIs
-            const medioRecepcionAPI = "https://api.condusef.gob.mx/catalogos/medio-recepcion";
-            const nivelAtencionAPI = "https://api.condusef.gob.mx/catalogos/niveles-atencion";
-            const estadosAPI = "https://api.condusef.gob.mx/sepomex/estados/";
+            const medioRecepcionAPI = "https://api-redeco.condusef.gob.mx/catalogos/medio-recepcion";
+            const nivelAtencionAPI = "https://api-redeco.condusef.gob.mx/catalogos/niveles-atencion";
+            const estadosAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
 
             // Elementos select
             const medioSelect = document.getElementById("QuejasMedio");
@@ -444,7 +444,7 @@ function initSectionLogic(sectionId) {
 
             //Cargar codigos postales
             $('#QuejasEstados').on('change', function () {
-                // const cpAPI = "https://api.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + $('#QuejasEstados').val();
+                // const cpAPI = "https://api-redeco.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + $('#QuejasEstados').val();
                 // const cpSelect = document.getElementById("QuejasCP");
                 $('#QuejasCP').attr('disabled', false);
                 $('#QuejasMunId').attr('disabled', true);
@@ -464,10 +464,10 @@ function initSectionLogic(sectionId) {
                 $('#QuejasLocId').val('');
                 $('#hiddenLocId').val('');
                 if ($('#QuejasEstados').val() !== '') {
-                    const municipiosAPI = "https://api.condusef.gob.mx/sepomex/municipios/?estado_id=" + $('#QuejasEstados').val() + "&cp=" + $('#QuejasCP').val();
+                    const municipiosAPI = "https://api-redeco.condusef.gob.mx/sepomex/municipios/?estado_id=" + $('#QuejasEstados').val() + "&cp=" + $('#QuejasCP').val();
                     const municipiosSelect = document.getElementById("QuejasMunId");
                     cargarCatalogoSelect(municipiosAPI, municipiosSelect, 'municipios', 'municipioId', 'municipio', 'QuejasMunId');
-                    const coloniasAPI = "https://api.condusef.gob.mx/sepomex/colonias/?cp=" + $('#QuejasCP').val();
+                    const coloniasAPI = "https://api-redeco.condusef.gob.mx/sepomex/colonias/?cp=" + $('#QuejasCP').val();
                     const coloniasSelect = document.getElementById("QuejasColId");
                     cargarCatalogoSelect(coloniasAPI, coloniasSelect, 'colonias', 'coloniaId', 'colonia', 'QuejasColId');
                 }
@@ -481,7 +481,7 @@ function initSectionLogic(sectionId) {
                 if ($('#QuejasColId').val() !== '' && $('#QuejasMunId').val() !== '') {
                     const coloniaId = $('#QuejasColId').val();
                     const municipioId = $('#QuejasMunId').val();
-                    const coloniasAPI = "https://api.condusef.gob.mx/sepomex/colonias/?cp=" + $('#QuejasCP').val();
+                    const coloniasAPI = "https://api-redeco.condusef.gob.mx/sepomex/colonias/?cp=" + $('#QuejasCP').val();
                     const localidadInput = document.getElementById("QuejasLocId");
                     cargarCatalogoSelect(coloniasAPI, localidadInput, 'colonias', 'tipoLocalidadId', 'tipoLocalidad', 'QuejasLocId', true, coloniaId, municipioId);
                 }
@@ -606,11 +606,11 @@ function initSectionLogic(sectionId) {
             });
             break;
         case 'catalogos/mediosRecepcion':
-            const mrAPI = "https://api.condusef.gob.mx/catalogos/medio-recepcion";
+            const mrAPI = "https://api-redeco.condusef.gob.mx/catalogos/medio-recepcion";
             cargarCatalogo(mrAPI, 'medio', ['medioId', 'medioDsc'], 'catalogoMR');
             break;
         case 'catalogos/nivelesAtencion':
-            const naAPI = "https://api.condusef.gob.mx/catalogos/niveles-atencion";
+            const naAPI = "https://api-redeco.condusef.gob.mx/catalogos/niveles-atencion";
             cargarCatalogo(naAPI, 'nivelesDeAtencion', ['nivelDeAtencionId', 'nivelDeAtencionDsc'], 'catalogoNA');
             break;
         case 'catalogos/productos':
@@ -635,19 +635,19 @@ function initSectionLogic(sectionId) {
             });
             break;
         case 'SEPOMEX/estados':
-            const estAPI = "https://api.condusef.gob.mx/sepomex/estados/";
+            const estAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
             cargarCatalogo(estAPI, 'estados', ['claveEdo', 'estado'], 'catalogoEstados');
             break;
         case 'SEPOMEX/codigosPostales':
             $('.container-table100').hide();
             const edoSelect = document.getElementById("clvEdo");
-            const edoAPI = "https://api.condusef.gob.mx/sepomex/estados/";
+            const edoAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
             cargarCatalogoSelect(edoAPI, edoSelect, 'estados', 'claveEdo', 'estado');
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
                 var clvEdo = $('#clvEdo').val();
                 if (clvEdo !== '') {
-                    const cpAPI = "https://api.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + clvEdo;
+                    const cpAPI = "https://api-redeco.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + clvEdo;
                     cargarCatalogo(cpAPI, 'codigos_postales', ['estadoId', 'estado', 'codigo_sepomex'], 'catalogoCP');
                     $('.container-table100').show();
                 } else {
@@ -666,7 +666,7 @@ function initSectionLogic(sectionId) {
                 var clvCP = $('#clvCP').val().trim();;
                 var clvEdo = $('#clvEdo').val().trim();;
                 if (clvCP !== '' && clvEdo !== '') {
-                    const munAPI = "https://api.condusef.gob.mx/sepomex/municipios/?estado_id=" + clvEdo + "&cp=" + clvCP;
+                    const munAPI = "https://api-redeco.condusef.gob.mx/sepomex/municipios/?estado_id=" + clvEdo + "&cp=" + clvCP;
                     cargarCatalogo(munAPI, 'municipios', ['estadoId', 'municipioId', 'municipio'], 'catalogoMunicipios');
                     $('.container-table100').show();
                 } else if (clvCP === '') {
@@ -687,7 +687,7 @@ function initSectionLogic(sectionId) {
                 e.preventDefault();
                 var clvCP = $('#clvCP').val().trim();
                 if (clvCP !== '') {
-                    const colAPI = "https://api.condusef.gob.mx/sepomex/colonias/?cp=" + clvCP;
+                    const colAPI = "https://api-redeco.condusef.gob.mx/sepomex/colonias/?cp=" + clvCP;
                     cargarCatalogo(colAPI, 'colonias', ['estadoId', 'estado', 'municipioId', 'municipio', 'coloniaId', 'colonia', 'tipoLocalidadId', 'tipoLocalidad'], 'catalogoColonias');
                     $('.container-table100').show();
                 } else {
