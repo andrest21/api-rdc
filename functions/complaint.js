@@ -3,13 +3,6 @@ const express = require('express');
 const serverless = require('serverless-http');
 const cookieParser = require('cookie-parser');
 const fetch = require('node-fetch');
-const https = require('https');
-const fs = require('fs');
-
-// Carga el certificado
-const agent = new https.Agent({
-    ca: fs.readFileSync('./functions/certs/condusef-gob-mx-chain.pem')
-});
 
 // Inicializar variables de entorno
 dotenv.config();
@@ -74,8 +67,7 @@ router.post('/send', async (req, res) => {
                 'Authorization': `${token_access}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify([complaintData]),
-            agent
+            body: JSON.stringify([complaintData])
         });
 
         const result = await apiResponse.json();
@@ -105,8 +97,7 @@ router.post('/find', async (req, res) => {
             method: 'GET',
             headers: {
                 'Authorization': `${token_access}`
-            },
-            agent
+            }
         });
 
         const result = await apiResponse.json();
@@ -136,8 +127,7 @@ router.post('/del', async (req, res) => {
             method: 'DELETE',
             headers: {
                 'Authorization': `${token_access}`,
-            },
-            agent
+            }
         });
 
         const result = await apiResponse.json();

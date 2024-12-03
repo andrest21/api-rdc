@@ -9,12 +9,7 @@ const fetch = require('node-fetch');
 const connectDB = require('../utils/db');
 const https = require('https');
 const axios = require('axios');
-const fs = require('fs');
 
-// Carga el certificado
-const agent = new https.Agent({
-  ca: fs.readFileSync('./functions/certs/condusef-gob-mx-chain.pem')
-});
 // Inicializar variables de entorno
 dotenv.config();
 
@@ -155,8 +150,7 @@ router.post('/create-super-user', async (req, res) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ key, username, password, confirm_password }),
-      agent
+      body: JSON.stringify({ key, username, password, confirm_password })
     });
 
     const result = await apiResponse.json();
@@ -192,8 +186,7 @@ router.post('/create-user', async (req, res) => {
         'Authorization': `${su_ta}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ username, password, confirm_password }),
-      agent
+      body: JSON.stringify({ username, password, confirm_password })
     });
 
     const result = await apiResponse.json();
@@ -258,8 +251,7 @@ router.post('/renewal', async (req, res) => {
       data: {
         username,
         password
-      },
-      httpsAgent: agent
+      }
     });
 
     const result = apiResponse.data;
