@@ -27,15 +27,30 @@ app.use(cookieParser());
 const router = express.Router();
 
 // Ruta para obtener todas las instituciones
-router.get('/institutions', async (req, res) => {
+router.post('/institutions', async (req, res) => {
+    const { id_institution, institution_desc, institution_sector } = req.body;
+    if (!id_institution || !institution_desc || !institution_sector) return res.status(400).json({ message: 'Faltan Datos' });
+    await connectDB();
     try {
-        await connectDB();
-        const institutions = await Institution.find().select('id_institution institution_desc');
-        res.json(institutions);
+        const updatedInstitution = await Institution.findOneAndUpdate(
+            { id_institution },
+            {
+                $set: {
+                    institution_desc,
+                    institution_sector
+                }
+            },
+            { new: true }
+        );
+
+        if (!updatedInstitution) {
+            return res.status(404).json({ message: 'Institución no encontrada' });
+        }
+        res.json({ message: 'Institución actualizada correctamente!', desc_institution: institution_desc, sector_institution:institution_sector});
     } catch (error) {
-        console.error('Error al obtener las instituciones:', error);
-        res.status(500).json({ message: 'Error al obtener las instituciones' });
-    }
+        console.error('Error al actualizar la institucion:', error);
+        res.status(500).json({ message: 'Error al actualizar la institucion' });
+    }   
 });
 
 // Ruta para consulta de los usuarios por institución

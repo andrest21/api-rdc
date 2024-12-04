@@ -5,6 +5,7 @@ const InstitutionSchema = new mongoose.Schema(
   {
     id_institution: { type: String, required: true },
     institution_desc: { type: String, required: true },
+    institution_sector: { type: String, default: "" },
   },
   {
     timestamps: true,

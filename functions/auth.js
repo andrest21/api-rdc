@@ -11,6 +11,7 @@ const https = require('https');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const Institution = require('../models/Institution');
 
 // Carga el certificado
 const agent = new https.Agent({
@@ -55,6 +56,37 @@ router.post('/logout', (req, res) => {
   res.json({ message: 'Sesión cerrada correctamente' });
 });
 
+// Ruta para cambiar contraseña
+router.post('/cpsw', async (req, res) => {
+  await connectDB();
+  const { id_institution, username ,password, new_password } = req.body;
+  if (!id_institution || !username || !password || !new_password ) return res.status(400).json({ message: 'Faltan datos' });
+  const user = await User.findOne({ id_institution, user_type: "user_admin", username }).exec();
+  if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) return res.status(401).json({ message: 'Contraseña incorrecta' });
+  // Actualiza la contraseña en MongoDB 
+  const hashedPassword = await bcrypt.hash(new_password, 10);
+  const updUser = await User.findOneAndUpdate(
+      {
+        id_institution,
+        user_type: 'user_admin',
+        username
+      },
+      {
+        $set: {
+          password: hashedPassword,
+          changePass: false
+        }
+      },
+      {
+        new: true
+      }
+    )
+  if (!updUser)
+    return res.status(400).json({ message: 'Error al cambiar la contraseña, por favor contacte a soporte.' });
+  res.json({ message: 'La contraseña se actualizo correctamente' });
+});
 // Iniciar sesión: Ruta para validar existencia de un superusuario
 router.post('/super-user', async (req, res) => {
   await connectDB();
@@ -62,11 +94,13 @@ router.post('/super-user', async (req, res) => {
   if (!id_institution || !username || !password) return res.status(400).json({ message: 'Faltan datos' });
   const user = await User.findOne({ id_institution, user_type: "user_admin", username }).exec();
   if (user) {
-    if (user.changePass){
-      return res.status(400).json({ message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
-    }
+    const institucion = await Institution.findOne({ id_institution }).exec();
+    if (!institucion)
+      return res.status(404).json({ message: 'Institucion no encontrada o invalida.' });
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
+      if (user.changePass)
+        return res.status(400).json({ status:'expired', message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
       const token = generateToken(user);
       res.cookie('token', token, {
         httpOnly: true,   // Para que solo el servidor pueda acceder a la cookie
@@ -77,7 +111,10 @@ router.post('/super-user', async (req, res) => {
       });
       const userInfo = {
         username: user.username,
-        institution: user.id_institution
+        institution: institucion.id_institution,
+        desc_institution: institucion.institution_desc,
+        sector_institution: institucion.institution_sector,
+        is_admin: 1
       };
       res.cookie('userInfo', JSON.stringify(userInfo), {
         httpOnly: true,
@@ -86,7 +123,7 @@ router.post('/super-user', async (req, res) => {
         maxAge: 3600000,
         expires: new Date(Date.now() + 3600000)
       });
-      res.json({ message: 'Login exitoso' });
+      res.json({ message: 'Login exitoso', data: userInfo });
     } else {
       res.status(401).json({ message: 'Contraseña incorrecta' });
     }
@@ -103,6 +140,9 @@ router.post('/user', async (req, res) => {
 
   const user = await User.findOne({ id_institution, user_type: 'user_gen', username }).exec();
   if (user) {
+    const institucion = await Institution.findOne({ id_institution }).exec();
+    if (!institucion)
+      return res.status(404).json({ message: 'Institucion no encontrada o invalida.' });
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       const token = generateToken(user);
@@ -114,7 +154,11 @@ router.post('/user', async (req, res) => {
       });
       const userInfo = {
         username: user.username,
-        token_access: user.token_access
+        token_access: user.token_access,
+        institution: institucion.id_institution,
+        desc_institution: institucion.institution_desc,
+        sector_institution: institucion.institution_sector,
+        is_admin: 0
       };
       res.cookie('userInfo', JSON.stringify(userInfo), {
         httpOnly: true,  // NO Permitimos que el cliente acceda a esta cookie
@@ -122,7 +166,7 @@ router.post('/user', async (req, res) => {
         sameSite: 'Strict',
         maxAge: 3600000
       });
-      res.json({ message: 'Login exitoso' });
+      res.json({ message: 'Login exitoso', data: userInfo });
     } else {
       res.status(401).json({ message: 'Contraseña incorrecta' });
     }
@@ -163,7 +207,8 @@ router.post('/create-super-user', async (req, res) => {
     const result = await apiResponse.json();
 
     if (!apiResponse.ok) {
-      return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+      let errorText = result.error || result.msg;
+      return res.status(400).json({ message: 'Error en la API:'+errorText, details: result });
     }
 
     const token_access = result.token_access;

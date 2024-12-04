@@ -1,0 +1,23 @@
+<section id="general" class="section">
+    <h2>Datos Generales de la Institución</h2>
+    <form id="generalForm" class="needs-validation" autocomplete="off">
+        <div class="mb-2">
+            <label for="id_institucion">ID Institución:</label>
+            <input type="text" class="form-control" id="id_institucion" name="id_institucion"
+                required readonly>
+        </div>
+        <div class="mb-2">
+            <label for="razon_institucion">Denominación o Razón Social:</label>
+            <input type="text" class="form-control" id="razon_institucion" name="razon_institucion"
+                placeholder="Nombre completo como se muestra en SIPRES o REUNE" maxlength="400" required readonly>
+        </div>
+        <div class="mb-4">
+            <label for="sector_institucion">Sector:</label>
+            <input type="text" class="form-control" id="sector_institucion" name="sector_institucion"
+                placeholder="Nombre del sector al que pertenece la Institución Financiera" maxlength="200" required readonly>
+        </div>
+        <button id="editarConfirm" type="button" hidden>Guardar</button>
+        <button id="editarCancel" type="button" hidden>Cancelar</button>
+        <button id="editar" type="button">Editar</button>
+    </form>
+</section>

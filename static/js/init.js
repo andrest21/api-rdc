@@ -1,6 +1,11 @@
 const contentCache = {};
 
 function loadContent(url) {
+    const appElement = document.getElementById('app');
+    if (!appElement) {
+        console.error('Elemento "app" no encontrado.');
+        return;
+    }
     if (contentCache[url]) {
         document.getElementById('app').innerHTML = contentCache[url];
         executeScripts(url);
@@ -9,7 +14,7 @@ function loadContent(url) {
             .then(response => response.text())
             .then(html => {
                 contentCache[url] = html;
-                document.getElementById('app').innerHTML = html;
+                appElement.innerHTML = html;
                 executeScripts(url);
             })
             .catch(error => console.error('Error cargando el contenido:', error));
@@ -21,54 +26,41 @@ function executeScripts(url) {
         initLogin();
     }
     if (url === 'views/main.html') {
-        initMain();
+        setTimeout(initMain, 0);
     }
     $('#spinner').addClass('d-none');
 }
 
-function checkAuth(firstLog, reload = true) {
+function checkAuth(firstLog) {
     return new Promise((resolve, reject) => {
         fetch('/.netlify/functions/protected')
             .then(response => {
                 if (response.ok) {
-                    if (!sessionStorage.getItem('is_admin') || !sessionStorage.getItem('username')) {
-                        reject(403);
-                    } else {
-                        if (firstLog) {
-                            sessionStorage.setItem('log', 1);
-                            Swal.fire({
-                                title: "Éxito",
-                                text: "Login exitoso!",
-                                icon: "success",
-                                timer: 3000
+                    if (firstLog) {
+                        sessionStorage.setItem('log', 1);
+                        Swal.fire({
+                            title: "Éxito",
+                            text: "Login exitoso!",
+                            icon: "success",
+                            timer: 3000
+                        });
+                        setTimeout(() => {
+                            sessionStorage.clear();
+                            fetch('/.netlify/functions/auth/logout', {
+                                method: 'POST',
                             });
-                            setTimeout(() => {
-                                sessionStorage.removeItem('is_admin');
-                                sessionStorage.removeItem('username');
-                                sessionStorage.removeItem('log');
-                                sessionStorage.removeItem('causas-list');
-                                sessionStorage.removeItem('product-list');
-                                sessionStorage.removeItem('product-id');
-                                fetch('/.netlify/functions/auth/logout', {
-                                    method: 'POST',
-                                });
-                                Swal.fire({
-                                    title: "Sesión Expirada",
-                                    text: "Por seguridad, por favor vuelve a iniciar sesión.",
-                                    icon: "info",
-                                    timer: 3000,
-                                    showConfirmButton: false
-                                }).then((result) => {
-                                    window.location.href = 'index.html';
-                                });
-                            }, 3600000);
-                        }
-                        if (reload) {
-                            resolve();
-                        } else {
-                            resolve();
-                        }
+                            Swal.fire({
+                                title: "Sesión Expirada",
+                                text: "Por seguridad, por favor vuelve a iniciar sesión.",
+                                icon: "info",
+                                timer: 3000,
+                                showConfirmButton: false
+                            }).then((result) => {
+                                window.location.href = 'index.html';
+                            });
+                        }, 3600000);
                     }
+                    resolve();
                 } else if (response.status == 403) {
                     if(firstLog){
                         reject();
@@ -121,7 +113,6 @@ function initLogin() {
                 "password": document.getElementById('superUserPassword').value.trim()
             };
             url = '/.netlify/functions/auth/super-user';
-            sessionStorage.setItem('is_admin', 1);
         } else {
             user = {
                 "id_institution": document.getElementById('institucion2').value.trim(),
@@ -129,7 +120,6 @@ function initLogin() {
                 "password": document.getElementById('passwordUser').value.trim()
             };
             url = '/.netlify/functions/auth/user';
-            sessionStorage.setItem('is_admin', 0);
         }
 
         const valid = await fetch(url, {
@@ -142,23 +132,73 @@ function initLogin() {
         const result = await valid.json();
 
         if (valid.ok) {
-            sessionStorage.setItem('username', user.username);
             checkAuth(true)
                 .then(() => {
+                    sessionStorage.setItem('uA',JSON.stringify(result.data));
                     loadContent('views/main.html');
                 })
                 .catch((errorCode) => {
-                    sessionStorage.removeItem('is_admin');
-                    sessionStorage.removeItem('username');
-                    sessionStorage.removeItem('log');
-
+                    sessionStorage.clear();
                     messageErrorHandler(errorCode);
                     setTimeout(() => {
                         loadContent('views/login.html');
                     }, 2000);
                 });
+        } else if (result.status == 'expired') {
+            $('#spinner').addClass('d-none');
+            Swal.fire({
+                title: "Advertencia",
+                text: `${result.message}`,
+                icon: "warning"
+            }).then(async () => {
+                const { value: password } = await Swal.fire({
+                    title: "Cambio de Contraseña",
+                    text: "Por favor, ingresa una nueva contraseña",
+                    input: "password",
+                    inputAttributes: {
+                        maxlength: "25",
+                        autocapitalize: "off",
+                        autocorrect: "off"
+                    },
+                    inputPlaceholder: "Ingrese aquí su nueva contraseña",
+                    icon: "warning",
+                    confirmButtonText: 'Guardar',
+                    showCancelButton: true,
+                    cancelButtonText: 'No Guardar',
+                    cancelButtonColor: "#d33",
+                });
+                if (password) {
+                    $('#spinner').removeClass('d-none');
+                    user['new_password'] = password;
+                    const response = await fetch('/.netlify/functions/auth/cpsw', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(user)
+                    });
+
+                    const result = await response.json();
+        
+                    if (response.ok) {
+                        $('#spinner').addClass('d-none');
+                        Swal.fire({
+                            title: "Éxito",
+                            text: `${result.message}`,
+                            icon: "success",
+                            timer: 3000
+                        });
+                        loadContent('views/login.html');
+                    } else {
+                        Swal.fire({
+                            title: "Error",
+                            text: `${result.message || valid.statusText}`,
+                            icon: "error"
+                        });
+                    }
+                }
+            });
         } else {
-            sessionStorage.removeItem('is_admin');
             $('#spinner').addClass('d-none');
             Swal.fire({
                 title: "Error",
@@ -169,29 +209,61 @@ function initLogin() {
     });
 }
 
+
 function initMain() {
-    const uName = sessionStorage.getItem('username');
-    const uA = sessionStorage.getItem('is_admin');
-    document.getElementById('welcomeProfile').innerHTML = 'BIENVENIDO ' + uName.toUpperCase();
+    if (isMainInitialized) return;
+    isMainInitialized = true;
+
+    if (!document.getElementById('welcomeProfile')) {
+        console.error('Elemento "welcomeProfile" no encontrado.');
+        return;
+    }
+
+    let uName = "";
+    let uAdm = 3;
+    
+    if (sessionStorage.getItem('uA')) {
+        const uAstring = sessionStorage.getItem('uA');
+        try {
+            const uA = JSON.parse(uAstring);
+            uName = uA.username || "";
+            uAdm = uA.is_admin;
+            if (uName !== "") {
+                document.getElementById('welcomeProfile').innerHTML = 
+                    'Sesión Iniciada: ' + uName.toUpperCase(); 
+            }
+        } catch (error) {
+            console.error('Error al parsear JSON:', error);
+            borrarCookies();
+            return loadContent('views/login.html');
+        }
+    } else {
+        borrarCookies();
+        return loadContent('views/login.html');
+    }
     document.body.style.backgroundColor = "lightgray";
-    if (uA === '1') {
+    if (uAdm === 1) {
         document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'none';
         document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'none';
         document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'none';
+        document.querySelector(`a[onclick="showSection('general')"]`).parentElement.style.display = 'block';
         document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'block';
         document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'block';
         document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'block';
-        showSection('createSuperUser', true);
-    } else if (uA === '0') {
+        showSection('general', true);
+    } else if (uAdm === 0) {
         document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'block';
         document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'block';
         document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'block';
+        document.querySelector(`a[onclick="showSection('general')"]`).parentElement.style.display = 'none';
         document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'none';
         document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'none';
         document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'none';
         showSection('sendComplaints', true);
     } else {
-        loadContent('views/login.html');
+        document.body.style.backgroundColor = "";
+        borrarCookies();
+        return loadContent('views/login.html');
     }
 
     $('footer').css('display', 'block');
@@ -203,7 +275,6 @@ function initMain() {
             icon: "warning",
             confirmButtonColor: "#007f4f",
             confirmButtonText: "Si",
-            titleColor: "#fff",
             showDenyButton: true,
             denyButtonText: 'No',
         }).then((res) => {
@@ -261,7 +332,8 @@ function borrarCookies() {
 }
 
 function messageErrorHandler(errorCode) {
-    if (errorCode === 401) {
+    borrarCookies();
+    if (errorCode === 401 || errorCode === 403) {
         return Swal.fire({
             title: "Sesión Expirada",
             text: "Por seguridad, por favor vuelve a iniciar sesión.",
@@ -281,19 +353,11 @@ function messageErrorHandler(errorCode) {
     return;
 }
 
-checkAuth(false)
-.then(() => {
-    loadContent('views/main.html');
-})
-.catch((errorCode) => {
-    sessionStorage.removeItem('is_admin');
-    sessionStorage.removeItem('username');
-    sessionStorage.removeItem('log');
-    sessionStorage.removeItem('causas-list');
-    sessionStorage.removeItem('product-list');
-    sessionStorage.removeItem('product-id');
-    messageErrorHandler(errorCode);
-    setTimeout(() => {
+let isMainInitialized = false;
+document.addEventListener('DOMContentLoaded', () => {
+    if (sessionStorage.getItem('log')) {
+        loadContent('views/main.html');
+    } else {
         loadContent('views/login.html');
-    }, 1000);
+    }
 });

@@ -44,7 +44,7 @@ function loadSection(sectionId) {
             });
 
             // Añadir la clase 'active' al elemento seleccionado
-            var descSecciones = ['createSuperUser', 'createUser', 'renewalToken', 'contacto'];
+            var descSecciones = ['createSuperUser', 'createUser', 'renewalToken', 'contacto','general'];
             var selectedLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
             if (descSecciones.includes(sectionId) && selectedLink) {
                 selectedLink.classList.add('active');
@@ -55,19 +55,16 @@ function loadSection(sectionId) {
         })
         .catch(error => {
             console.error('Error al cargar la sección:', error);
-            document.getElementById('seccionDinamica').innerHTML = '<p>Error al cargar la sección.</p>';
+            document.getElementById('seccionDinamica').innerHTML = '<p>Error al cargar la sección, por favor contactar a soporte.</p>';
         });
 }
 
 function showSection(sectionId, isfirst = false) {
     //Validamos si es carga inicial de pagina
     if (!isfirst) {
-        checkAuth(false, false).then(() => {
+        checkAuth(false).then(() => {
             loadSection(sectionId);
         }).catch((errorCode) => {
-            sessionStorage.removeItem('is_admin');
-            sessionStorage.removeItem('username');
-            sessionStorage.removeItem('log');
             messageErrorHandler(errorCode);
             setTimeout(() => {
                 loadContent('views/login.html');
@@ -106,6 +103,146 @@ function initSectionLogic(sectionId) {
         }
     });
     switch (sectionId) {
+        case 'general':
+            let uInsId = "";
+            let uInsD = "";
+            let uInsS = "";
+            
+            if (sessionStorage.getItem('uA')) {
+                const uAstring = sessionStorage.getItem('uA');
+                try {
+                    const uA = JSON.parse(uAstring);
+                    uInsId = uA.institution || "";
+                    uInsD = uA.desc_institution || "";
+                    uInsS = uA.sector_institution || "";
+                } catch (error) {
+                    console.error('Error al parsear JSON:', error);
+                    return loadContent('views/login.html');
+                }
+            } else {
+                return loadContent('views/login.html');
+            }
+
+            const idInput = document.getElementById('id_institucion');
+            const descInput = document.getElementById('razon_institucion');
+            const sectorInput = document.getElementById('sector_institucion');
+        
+            if (idInput && descInput && sectorInput) {
+                idInput.value = uInsId;
+                descInput.value = uInsD;
+                sectorInput.value = uInsS;
+            }
+            $('#editar').on('click', function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: "Advertencia",
+                    html: `¿Está seguro de editar la información de la Institución?`,
+                    icon: "warning",
+                    confirmButtonColor: "#007f4f",
+                    confirmButtonText: "Si",
+                    titleColor: "#fff",
+                    showDenyButton: true,
+                    denyButtonText: 'No',
+                }).then((res) => {
+                    if (res.isConfirmed) {
+                        $('#razon_institucion').prop('readonly',false);
+                        $('#sector_institucion').prop('readonly',false);
+                        $('#editarConfirm').prop('hidden',false);
+                        $('#editarCancel').prop('hidden',false);
+                        $('#editar').prop('hidden',true);
+                    }else{
+                        $('#razon_institucion').prop('readonly',true);
+                        $('#sector_institucion').prop('readonly',true);
+                        $('#editarConfirm').prop('hidden',true);
+                        $('#editarCancel').prop('hidden',true);
+                        $('#editar').prop('hidden',false);
+                    }
+                });
+            });
+            $('#editarCancel').on('click', function (e) {
+                $('#razon_institucion').prop('readonly',true);
+                $('#sector_institucion').prop('readonly',true);
+                $('#editarConfirm').prop('hidden',true);
+                $('#editarCancel').prop('hidden',true);
+                $('#editar').prop('hidden',false);
+            });
+            $('#editarConfirm').on('click', async function (e) {
+                e.preventDefault();
+                const payload = {
+                    id_institution: $('#id_institucion').val().trim(),
+                    institution_desc: $('#razon_institucion').val().trim(),
+                    institution_sector: $('#sector_institucion').val().trim(),
+                };
+            
+                if (!payload.id_institution || !payload.institution_desc || !payload.institution_sector) {
+                    Swal.fire({
+                        title: "Error",
+                        text: "Por favor, complete todos los campos requeridos antes de continuar.",
+                        icon: "error",
+                    });
+                    return;
+                }
+            
+                Swal.fire({
+                    title: "Advertencia",
+                    html: `Al guardar los datos de su Institución cambiarán. ¿Está seguro de continuar?`,
+                    icon: "warning",
+                    confirmButtonColor: "#007f4f",
+                    confirmButtonText: "Sí",
+                    titleColor: "#fff",
+                    showDenyButton: true,
+                    denyButtonText: "No",
+                }).then(async (res) => {
+                    if (res.isConfirmed) {
+                        $('#spinner').removeClass('d-none');
+                        try {
+                            const response = await fetch('/.netlify/functions/catalog/institutions', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(payload),
+                            });
+            
+                            const result = await response.json();
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: "Éxito",
+                                    html: `${result.message}`,
+                                    icon: "success",
+                                });
+                                const uAstring = sessionStorage.getItem('uA');
+                                const uA = JSON.parse(uAstring);
+                                uA['desc_institution'] = result.desc_institution;
+                                uA['sector_institution'] = result.sector_institution;
+                                sessionStorage.setItem('uA', JSON.stringify(uA));
+                                showSection('general', false);
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: result.message || response.statusText,
+                                    icon: "error",
+                                });
+                            }
+                        } catch (error) {
+                            console.error('Error en la solicitud:', error);
+                            Swal.fire({
+                                title: "Error",
+                                text: error,
+                                icon: "error"
+                            });
+                        } finally {
+                            $('#spinner').addClass('d-none'); // Ocultar el spinner
+                        }
+                    } else {
+                        // Restaurar estado de los campos si se cancela la edición
+                        $('#razon_institucion').prop('readonly', true);
+                        $('#sector_institucion').prop('readonly', true);
+                        $('#editarConfirm').prop('hidden', true);
+                        $('#editar').prop('hidden', false);
+                    }
+                });
+            });
         case 'createSuperUser':
             //Inputmask
             $('#superUsername').inputmask({
@@ -191,6 +328,11 @@ function initSectionLogic(sectionId) {
                     } catch (error) {
                         $('#spinner').addClass('d-none');
                         console.error('Error:', error);
+                        Swal.fire({
+                            title: "Error",
+                            text: error,
+                            icon: "error"
+                        });
                     }
                 }
             });
@@ -341,7 +483,32 @@ function initSectionLogic(sectionId) {
                 }
             });
             break;
-        case 'sendComplaints':
+        case 'sendComplaints':;
+            let uInsDG = "";
+            let uInsSG= "";
+            
+            if (sessionStorage.getItem('uA')) {
+                const uAstringG = sessionStorage.getItem('uA');
+                try {
+                    const uAG = JSON.parse(uAstringG);
+                    uInsDG = uAG.desc_institution || "";
+                    uInsSG = uAG.sector_institution || "";
+                } catch (error) {
+                    console.error('Error al parsear JSON:', error);
+                    return loadContent('views/login.html');
+                }
+            } else {
+                return loadContent('views/login.html');
+            }
+
+            const descInputG = document.getElementById('QuejasDenominacion');
+            const sectorInputG = document.getElementById('QuejasSector');
+        
+            if (descInputG && sectorInputG) {
+                descInputG.value = uInsDG;
+                descInputG.setAttribute('readonly',true);
+                sectorInputG.value = uInsSG;
+            }
             //Submit Quejas
             $('#sendComplaintsForm').on('submit', async function (e) {
                 e.preventDefault();
