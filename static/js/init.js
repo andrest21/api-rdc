@@ -211,9 +211,6 @@ function initLogin() {
 
 
 function initMain() {
-    if (isMainInitialized) return;
-    isMainInitialized = true;
-
     if (!document.getElementById('welcomeProfile')) {
         console.error('Elemento "welcomeProfile" no encontrado.');
         return;
@@ -353,7 +350,6 @@ function messageErrorHandler(errorCode) {
     return;
 }
 
-let isMainInitialized = false;
 document.addEventListener('DOMContentLoaded', () => {
     if (sessionStorage.getItem('log')) {
         loadContent('views/main.html');
