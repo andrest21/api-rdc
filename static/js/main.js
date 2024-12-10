@@ -1,10 +1,11 @@
-function checkInvalid() {
-    if ($('.is-invalid').length > 0) {
+function checkInvalid(form) {
+    const invalidFields = $(`#${form} .is-invalid`);
+    if (invalidFields.length > 0) {
         Swal.fire({
             text: "Por favor, corrija los campos inválidos antes de enviar.",
             icon: "warning"
         });
-        $('.is-invalid:first').focus();
+        invalidFields.first().focus();
         return false;
     }
     return true;
@@ -35,17 +36,14 @@ function loadSection(sectionId) {
             return response.text();
         })
         .then(htmlContent => {
-            // Colocar el contenido de la vista dentro del div "seccionDinamica"
             document.getElementById('seccionDinamica').innerHTML = htmlContent;
 
-            // Eliminar la clase 'active' de todos los elementos del menú
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
 
-            // Añadir la clase 'active' al elemento seleccionado
-            var descSecciones = ['createSuperUser', 'createUser', 'renewalToken', 'contacto','general'];
-            var selectedLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            let descSecciones = ['createSuperUser', 'createUser', 'renewalToken', 'contacto','general'];
+            let selectedLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
             if (descSecciones.includes(sectionId) && selectedLink) {
                 selectedLink.classList.add('active');
             } else if (selectedLink) {
@@ -60,7 +58,6 @@ function loadSection(sectionId) {
 }
 
 function showSection(sectionId, isfirst = false) {
-    //Validamos si es carga inicial de pagina
     if (!isfirst) {
         checkAuth(false).then(() => {
             loadSection(sectionId);
@@ -76,17 +73,19 @@ function showSection(sectionId, isfirst = false) {
 }
 
 function initSectionLogic(sectionId) {
-    //Eliminamos invalid
     $('input:not(.maskedInput)').on('keyup', function () {
         $(this).removeClass('is-invalid');
     });
-    //Mascara para campos numericos
+    $('select:not(.maskedInput)').on('change', function () {
+        $(this).removeClass('is-invalid');
+    });
+    
     $('input.numerico').inputmask({ mask: "9", repeat: '4' });
-    //Mascara para campos numericos
+    
     $('input.edadInputMask').inputmask('numeric', { min: '0', max: '150', clearMaskOnLostFocus: true });
-    //Mascara para codigos postales
+    
     $('input.cp').inputmask({ mask: "9", repeat: '5' });
-    //Inicializar icon eye
+    
     $('.vpass').on('click', function () {
         let input = $(this).siblings('div').find('input');
         if (input.length === 0) input = $(this).prev('input');
@@ -232,10 +231,9 @@ function initSectionLogic(sectionId) {
                                 icon: "error"
                             });
                         } finally {
-                            $('#spinner').addClass('d-none'); // Ocultar el spinner
+                            $('#spinner').addClass('d-none');
                         }
                     } else {
-                        // Restaurar estado de los campos si se cancela la edición
                         $('#razon_institucion').prop('readonly', true);
                         $('#sector_institucion').prop('readonly', true);
                         $('#editarConfirm').prop('hidden', true);
@@ -244,7 +242,6 @@ function initSectionLogic(sectionId) {
                 });
             });
         case 'createSuperUser':
-            //Inputmask
             $('#superUsername').inputmask({
                 regex: "[a-zA-Z0-9]*",
                 placeholder: '',
@@ -256,7 +253,6 @@ function initSectionLogic(sectionId) {
                 }
             });
 
-            //Validar contraseñas iguales de super user
             $('#superUserPassword,#confirmSuperUserPassword').on('keyup', function () {
                 if ($('#superUserPassword').val() !== '' && $('#confirmSuperUserPassword').val() !== '') {
                     if ($('#superUserPassword').val() != $('#confirmSuperUserPassword').val()) {
@@ -266,10 +262,10 @@ function initSectionLogic(sectionId) {
                     }
                 }
             });
-            //Submit super user form
+            
             $('#createSuperUserForm').on('submit', async function (e) {
                 e.preventDefault();
-                const validForm = checkInvalid();
+                const validForm = checkInvalid("createSuperUserForm");
                 if (validForm) {
                     $('#spinner').removeClass('d-none');
                     const newSuperUser = {
@@ -338,10 +334,9 @@ function initSectionLogic(sectionId) {
             });
             break;
         case 'createUser':
-            //Submit user form
             $('#createUserForm').on('submit', async function (e) {
                 e.preventDefault();
-                const validForm = checkInvalid();
+                const validForm = checkInvalid("createUserForm");
                 if (validForm) {
                     $('#spinner').removeClass('d-none');
                     const newUser = {
@@ -387,7 +382,6 @@ function initSectionLogic(sectionId) {
                 }
             });
 
-            //Validar contraseñas de usuarios iguales
             $('#newPassword,#confirmNewPassword').on('keyup', function () {
                 if ($('#newPassword').val() !== '' && $('#confirmNewPassword').val() !== '') {
                     if ($('#newPassword').val() != $('#confirmNewPassword').val()) {
@@ -401,7 +395,7 @@ function initSectionLogic(sectionId) {
         case 'renewalToken':
             const tokensUrl = "/.netlify/functions/catalog/tokens";
             cargarCatalogo(tokensUrl, 'tokens', ['date_created', 'updatedAt', 'username', 'token_access', 'remaining_days'], 'catalogoToken');
-            //Submit renovar token de institucion
+            
             $('#renewalTokenForm').on('submit', async function (e) {
                 e.preventDefault();
                 const username = document.getElementById('username').value.trim();
@@ -411,7 +405,7 @@ function initSectionLogic(sectionId) {
                 if (username == '') $('#username').addClass('is-invalid');
                 if (password == '') $('#password').addClass('is-invalid');
 
-                const isValid = checkInvalid();
+                const isValid = checkInvalid("renewalTokenForm");
                 if (isValid) {
                     $('#spinner').removeClass('d-none');
 
@@ -508,8 +502,9 @@ function initSectionLogic(sectionId) {
                 descInputG.value = uInsDG;
                 descInputG.setAttribute('readonly',true);
                 sectorInputG.value = uInsSG;
+                sectorInputG.setAttribute('readonly',true);
             }
-            //Submit Quejas
+            
             $('#sendComplaintsForm').on('submit', async function (e) {
                 e.preventDefault();
 
@@ -560,7 +555,7 @@ function initSectionLogic(sectionId) {
                 }
 
                 if (!validateForm(complaintData));
-                if (!checkInvalid()) return;
+                if (!checkInvalid("sendComplaintsForm")) return;
 
                 try {
                     const response = await fetch('/.netlify/functions/complaint/send', {
@@ -593,26 +588,20 @@ function initSectionLogic(sectionId) {
                     console.error('Error:', error);
                 }
             });
-            //Cargar catalogos
-            // URLs de las APIs
+            
             const medioRecepcionAPI = "https://api-redeco.condusef.gob.mx/catalogos/medio-recepcion";
             const nivelAtencionAPI = "https://api-redeco.condusef.gob.mx/catalogos/niveles-atencion";
             const estadosAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
 
-            // Elementos select
             const medioSelect = document.getElementById("QuejasMedio");
             const nivelATSelect = document.getElementById("QuejasNivelAT");
             const estadosSelect = document.getElementById("QuejasEstados");
 
-            // Cargar los catálogos dinámicamente al cargar la página
             cargarCatalogoSelect(medioRecepcionAPI, medioSelect, 'medio', 'medioId', 'medioDsc');
             cargarCatalogoSelect(nivelAtencionAPI, nivelATSelect, 'nivelesDeAtencion', 'nivelDeAtencionId', 'nivelDeAtencionDsc');
             cargarCatalogoSelect(estadosAPI, estadosSelect, 'estados', 'claveEdo', 'estado');
 
-            //Cargar codigos postales
             $('#QuejasEstados').on('change', function () {
-                // const cpAPI = "https://api-redeco.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + $('#QuejasEstados').val();
-                // const cpSelect = document.getElementById("QuejasCP");
                 $('#QuejasCP').attr('disabled', false);
                 $('#QuejasMunId').attr('disabled', true);
                 $('#QuejasColId').attr('disabled', true);
@@ -620,10 +609,8 @@ function initSectionLogic(sectionId) {
                 $('#QuejasLocId').val('');
                 $('#hiddenLocId').val('');
                 $('#QuejasCP').val('');
-                // cargarCatalogoSelect(cpAPI, cpSelect, 'codigos_postales', 'codigo_sepomex', 'codigo_sepomex', 'QuejasCP');
             });
 
-            //Cargar municipios y colonias
             $('#QuejasCP').on('change', function () {
                 $('#QuejasMunId').attr('disabled', true);
                 $('#QuejasColId').attr('disabled', true);
@@ -640,7 +627,6 @@ function initSectionLogic(sectionId) {
                 }
             });
 
-            // Cargar localidad
             $('#QuejasColId,#QuejasMunId').on('change', function () {
                 $('#QuejasLocId').attr('disabled', true);
                 $('#QuejasLocId').val('');
@@ -693,8 +679,8 @@ function initSectionLogic(sectionId) {
 
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var year = $('#año').val();
-                var month = $('#mes').val();
+                let year = $('#año').val();
+                let month = $('#mes').val();
                 if (year !== '' && month !== '') {
                     $('#spinner').removeClass('d-none');
                     buscarQueja(year, month);
@@ -716,7 +702,7 @@ function initSectionLogic(sectionId) {
         case 'delComplaints':
             $('#delComplaintsForm').on('submit', function (e) {
                 e.preventDefault();
-                var folio = $('#quejaId').val().trim();
+                let folio = $('#quejaId').val().trim();
                 if (folio !== '') {
                     Swal.fire({
                         title: "Advertencia",
@@ -787,7 +773,7 @@ function initSectionLogic(sectionId) {
         case 'catalogos/causas':
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var clvProd = $('#clvProd').val();
+                let clvProd = $('#clvProd').val();
                 if (clvProd !== '') {
                     $('#spinner').removeClass('d-none');
                     cargarCausas(clvProd);
@@ -812,7 +798,8 @@ function initSectionLogic(sectionId) {
             cargarCatalogoSelect(edoAPI, edoSelect, 'estados', 'claveEdo', 'estado');
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var clvEdo = $('#clvEdo').val();
+                let clvEdo = $('#clvEdo').val();
+                checkInvalid("codigosPostales");
                 if (clvEdo !== '') {
                     const cpAPI = "https://api-redeco.condusef.gob.mx/sepomex/codigos-postales/?estado_id=" + clvEdo;
                     cargarCatalogo(cpAPI, 'codigos_postales', ['estadoId', 'estado', 'codigo_sepomex'], 'catalogoCP');
@@ -828,10 +815,14 @@ function initSectionLogic(sectionId) {
             break;
         case 'SEPOMEX/municipios':
             $('.container-table100').hide();
+            const edSelect = document.getElementById("clvEdo");
+            const edAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
+            cargarCatalogoSelect(edAPI, edSelect, 'estados', 'claveEdo', 'estado');
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var clvCP = $('#clvCP').val().trim();;
-                var clvEdo = $('#clvEdo').val().trim();;
+                let clvCP = $('#clvCP').val().trim();;
+                let clvEdo = $('#clvEdo').val().trim();;
+                checkInvalid("municipios");
                 if (clvCP !== '' && clvEdo !== '') {
                     const munAPI = "https://api-redeco.condusef.gob.mx/sepomex/municipios/?estado_id=" + clvEdo + "&cp=" + clvCP;
                     cargarCatalogo(munAPI, 'municipios', ['estadoId', 'municipioId', 'municipio'], 'catalogoMunicipios');
@@ -844,7 +835,7 @@ function initSectionLogic(sectionId) {
                     $('#clvEdo').addClass('is-invalid');
                 }
             });
-            $('#clvCP').on('change', function () {
+            $('#clvCP,#clvEdo').on('change', function () {
                 $('.container-table100').hide();
             });
             break;
@@ -852,7 +843,8 @@ function initSectionLogic(sectionId) {
             $('.container-table100').hide();
             $('#btnBuscar').on('click', function (e) {
                 e.preventDefault();
-                var clvCP = $('#clvCP').val().trim();
+                let clvCP = $('#clvCP').val().trim();
+                checkInvalid("colonias");
                 if (clvCP !== '') {
                     const colAPI = "https://api-redeco.condusef.gob.mx/sepomex/colonias/?cp=" + clvCP;
                     cargarCatalogo(colAPI, 'colonias', ['estadoId', 'estado', 'municipioId', 'municipio', 'coloniaId', 'colonia', 'tipoLocalidadId', 'tipoLocalidad'], 'catalogoColonias');
@@ -869,21 +861,18 @@ function initSectionLogic(sectionId) {
         case 'contacto':
             $('#contactoForm').on('submit', function (e) {
                 e.preventDefault();
-
-                // Validación de los campos
+                checkInvalid("contactoForm");
+                
                 let valid = true;
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-                // Obtener los valores de los campos
                 const nombre = $('#nameContacto').val().trim();
                 const email = $('#emailContacto').val().trim();
                 const asunto = $('#asuntoContacto').val().trim();
                 const mensaje = $('#mensajeContacto').val().trim();
 
-                // Limpiar mensajes de error
                 $('input, textarea, select').removeClass('is-invalid');
 
-                // Validar que los campos no estén vacíos
                 if (nombre === '' || nombre === null) {
                     valid = false;
                     $('#nameContacto').addClass('is-invalid');
@@ -904,10 +893,9 @@ function initSectionLogic(sectionId) {
                     $('#mensajeContacto').addClass('is-invalid');
                 }
 
-                // Si la validación es exitosa
                 if (valid) {
                     $('#spinner').removeClass('d-none');
-                    // Enviar los datos del formulario
+
                     const nombre = $('#nameContacto').val();
                     const email = $('#emailContacto').val();
                     const asunto = $('#asuntoContacto').val();
@@ -944,7 +932,6 @@ function initSectionLogic(sectionId) {
     }
 };
 
-// Función para cargar los datos de la API en un select
 function cargarCatalogoSelect(url, selectElement, key, idField, textField, disabledField = "", setLocalidad = false, colonia = "", municipio = "") {
     fetch(url)
         .then(response => response.json())

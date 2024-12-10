@@ -316,8 +316,14 @@ function initMain() {
 }
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
-    console.error("Error detectado: ", msg);
+    console.error("Error detectado: ", msg+'||'+error);
     borrarCookies();
+    Swal.fire({
+        title: "Error",
+        text: `${msg}:${error}`,
+        icon: "error",
+        showConfirmButton: true
+    });
 };
 
 function borrarCookies() {
