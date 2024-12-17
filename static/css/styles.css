@@ -53,7 +53,7 @@ label {
 }
 
 input[type="text"],
-input[type="password"]:not([class="swal2-input"]),
+input[type="password"],
 input[type="number"] {
     width: 100%;
     padding: 6px;

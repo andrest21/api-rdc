@@ -78,6 +78,15 @@ function checkAuth(firstLog) {
     });
 }
 
+$("#swal2-input1, #swal2-input2").on('paste', function(e){
+    e.preventDefault();
+    alert('Esta acción está prohibida');
+})
+    
+$("#swal2-input1, #swal2-input2").on('copy', function(e){
+    e.preventDefault();
+    alert('Esta acción está prohibida');
+})
 function initLogin() {
     $('footer').css('display', 'none');
     $('body').css('background-color', '');
@@ -154,48 +163,72 @@ function initLogin() {
                 const { value: password } = await Swal.fire({
                     title: "Cambio de Contraseña",
                     text: "Por favor, ingresa una nueva contraseña",
-                    input: "password",
+                    html: `
+                        <input id="swal2-input1" class="swal2-input m-0 fs-6" type="password" maxlength="25" autocapitalize="none" autocorrect="off" style="display: flex;" placeholder="Ingrese aquí su nueva contraseña"><br/>
+                        <input id="swal2-input2" class="swal2-input m-0 fs-6" type="password" maxlength="25" autocapitalize="none" autocorrect="off" style="display: flex;" placeholder="Confirme su nueva contraseña" oncopy="return false" onpaste="return false">
+                    `,
                     inputAttributes: {
                         maxlength: "25",
                         autocapitalize: "off",
                         autocorrect: "off"
                     },
-                    inputPlaceholder: "Ingrese aquí su nueva contraseña",
                     icon: "warning",
                     confirmButtonText: 'Guardar',
                     showCancelButton: true,
-                    cancelButtonText: 'No Guardar',
+                    cancelButtonText: 'Cancelar',
                     cancelButtonColor: "#d33",
+                    preConfirm: async () => {
+                        Swal.resetValidationMessage();
+                        if (document.getElementById("swal2-input1").value.trim() === ""|| document.getElementById("swal2-input2").value.trim() === ""){
+                            return Swal.showValidationMessage("Por favor, escriba una nueva contraseña.");
+                        }else if(document.getElementById("swal2-input1").value !== document.getElementById("swal2-input2").value){
+                            return Swal.showValidationMessage("Las contraseñas no coinciden, por favor corrija.");
+                        }else{
+                            return document.getElementById("swal2-input1").value;
+                        }   
+                    }
                 });
                 if (password) {
-                    $('#spinner').removeClass('d-none');
-                    user['new_password'] = password;
-                    const response = await fetch('/.netlify/functions/auth/cpsw', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(user)
-                    });
+                    Swal.fire({
+                        title: "Advertencia",
+                        html: `¿Está seguro de guardar la contraseña?`,
+                        icon: "warning",
+                        confirmButtonColor: "#007f4f",
+                        confirmButtonText: "Si",
+                        showDenyButton: true,
+                        denyButtonText: 'No',
+                    }).then(async (res) => {
+                        if (res.isConfirmed) {
+                            $('#spinner').removeClass('d-none');
+                            user['new_password'] = password;
+                            const response = await fetch('/.netlify/functions/auth/cpsw', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(user)
+                            });
 
-                    const result = await response.json();
-        
-                    if (response.ok) {
-                        $('#spinner').addClass('d-none');
-                        Swal.fire({
-                            title: "Éxito",
-                            text: `${result.message}`,
-                            icon: "success",
-                            timer: 3000
-                        });
-                        loadContent('views/login.html');
-                    } else {
-                        Swal.fire({
-                            title: "Error",
-                            text: `${result.message || valid.statusText}`,
-                            icon: "error"
-                        });
-                    }
+                            const result = await response.json();
+                
+                            if (response.ok) {
+                                $('#spinner').addClass('d-none');
+                                Swal.fire({
+                                    title: "Éxito",
+                                    text: `${result.message}`,
+                                    icon: "success",
+                                    timer: 3000
+                                });
+                                loadContent('views/login.html');
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: `${result.message || valid.statusText}`,
+                                    icon: "error"
+                                });
+                            }
+                        }
+                    });
                 }
             });
         } else {
