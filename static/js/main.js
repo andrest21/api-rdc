@@ -575,6 +575,8 @@ function initSectionLogic(sectionId) {
                             icon: "success"
                         });
                         $('#sendComplaintsForm').trigger("reset");
+                        $('#QuejasDenominacion').val(complaintData['quejasDenominacion']);
+                        $('#QuejasSector').val(complaintData['quejasSector']);
                     } else {
                         $('#spinner').addClass('d-none');
                         Swal.fire({
