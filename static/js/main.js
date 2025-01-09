@@ -512,7 +512,7 @@ function initSectionLogic(sectionId) {
                     'QuejasNoMes', 'QuejasNum', 'QuejasMedio', 'QuejasNivelAT',
                     'QuejasEstatus', 'QuejasEstados', 'QuejasMunId',
                     'QuejasLocId', 'QuejasColId', 'QuejasCP',
-                    'QuejasTipoPersona', 'QuejasEdad', 'QuejasRespuesta'
+                    'QuejasTipoPersona', 'QuejasRespuesta'
                 ];
 
                 const complaintData = {
@@ -588,7 +588,7 @@ function initSectionLogic(sectionId) {
                     console.error('Error:', error);
                 }
             });
-            
+
             const medioRecepcionAPI = "https://api-redeco.condusef.gob.mx/catalogos/medio-recepcion";
             const nivelAtencionAPI = "https://api-redeco.condusef.gob.mx/catalogos/niveles-atencion";
             const estadosAPI = "https://api-redeco.condusef.gob.mx/sepomex/estados/";
@@ -862,7 +862,6 @@ function initSectionLogic(sectionId) {
             $('#contactoForm').on('submit', function (e) {
                 e.preventDefault();
                 checkInvalid("contactoForm");
-                
                 let valid = true;
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -895,7 +894,6 @@ function initSectionLogic(sectionId) {
 
                 if (valid) {
                     $('#spinner').removeClass('d-none');
-
                     const nombre = $('#nameContacto').val();
                     const email = $('#emailContacto').val();
                     const asunto = $('#asuntoContacto').val();
