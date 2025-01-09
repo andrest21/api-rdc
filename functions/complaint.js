@@ -14,8 +14,9 @@ const agent = new https.Agent({
 // Inicializar variables de entorno
 dotenv.config();
 // Definimos entorno
-const api_prod = process.env.DEBUG ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
-
+console.log(process.env.DEBUG);
+const api_prod = process.env.DEBUG==true ? 'https://api.condusef.gob.mx':'https://api-redeco.condusef.gob.mx';
+console.log(api_prod);
 // Crear una app Express
 const app = express();
 app.use(express.json());
