@@ -32,7 +32,7 @@ router.post('/send', async (req, res) => {
         'QuejasNoMes', 'QuejasNum', 'QuejasMedio', 'QuejasNivelAT',
         'QuejasEstatus', 'QuejasEstados', 'QuejasMunId',
         'QuejasLocId', 'QuejasColId', 'QuejasCP',
-        'QuejasTipoPersona', 'QuejasEdad', 'QuejasRespuesta'
+        'QuejasTipoPersona', 'QuejasRespuesta'
     ];
 
     for (const field of numericFields) {
