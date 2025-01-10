@@ -116,7 +116,7 @@ router.get('/product', async (req, res) => {
 
         const result = await apiResponse.json();
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API:'+result.error, details: result });
+            return res.status(400).json({ message: 'Error en la API: '+result.error, details: result });
         }
 
         res.json(result);
@@ -150,7 +150,7 @@ router.post('/causas', async (req, res) => {
 
         const result = await apiResponse.json();
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API:'+result.error, details: result });
+            return res.status(400).json({ message: 'Error en la API: '+result.error, details: result });
         }
 
         res.json(result);

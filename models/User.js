@@ -29,6 +29,10 @@ const userSchema = new Schema(
       type: Date,
       required: false,
     },
+    sid:{
+      type: String,
+      unique: true,
+    },
     changePass: {
         type: Boolean
     },

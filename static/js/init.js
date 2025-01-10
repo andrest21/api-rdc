@@ -11,13 +11,26 @@ function loadContent(url) {
         executeScripts(url);
     } else {
         fetch(url)
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })  
             .then(html => {
                 contentCache[url] = html;
                 appElement.innerHTML = html;
                 executeScripts(url);
             })
-            .catch(error => console.error('Error cargando el contenido:', error));
+            .catch(error => {
+                console.error('Error al cargar el contenido:', error);
+                appElement.innerHTML = `
+                    <div class="error-container">
+                        <h2>Error al cargar la vista</h2>
+                        <p>Por favor, inténtalo nuevamente más tarde ó contacta directamente a soporte.</p>
+                        <p><strong>Detalle:</strong> ${error.message}</p>
+                    </div>`;
+            });
     }
 }
 
@@ -32,49 +45,40 @@ function executeScripts(url) {
 }
 
 function checkAuth(firstLog) {
-    return new Promise((resolve, reject) => {
-        fetch('/.netlify/functions/protected')
-            .then(response => {
-                if (response.ok) {
-                    if (firstLog) {
-                        sessionStorage.setItem('log', 1);
-                        Swal.fire({
-                            title: "Éxito",
-                            text: "Login exitoso!",
-                            icon: "success",
-                            timer: 3000
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await fetch('/.netlify/functions/protected');
+            if (response.ok) {
+                if (firstLog) {
+                    sessionStorage.setItem('log', 1);
+                    Swal.fire({
+                        title: "Éxito",
+                        text: "Login exitoso!",
+                        icon: "success",
+                        timer: 3000
+                    });
+                    setTimeout(() => {
+                        sessionStorage.clear();
+                        fetch('/.netlify/functions/auth/logout', {
+                            method: 'POST',
                         });
-                        setTimeout(() => {
-                            sessionStorage.clear();
-                            fetch('/.netlify/functions/auth/logout', {
-                                method: 'POST',
-                            });
-                            Swal.fire({
-                                title: "Sesión Expirada",
-                                text: "Por seguridad, por favor vuelve a iniciar sesión.",
-                                icon: "info",
-                                timer: 3000,
-                                showConfirmButton: false
-                            }).then((result) => {
-                                window.location.href = 'index.html';
-                            });
-                        }, 3600000);
-                    }
-                    resolve();
-                } else if (response.status == 403) {
-                    if(firstLog){
-                        reject();
-                    }else{
-                        reject(403);
-                    }
-                } else if (response.status == 401) {
-                    reject(401);
+                        Swal.fire({
+                            title: "Sesión Expirada",
+                            text: "Por seguridad, vuelve a iniciar sesión.",
+                            icon: "info",
+                            timer: 4000,
+                            showConfirmButton: false
+                        }).then(() => window.location.href = 'index.html');
+                    }, 3600000);
                 }
-            })
-            .catch(error => {
-                console.error('Error verificando el token:', error);
-                reject(500);
-            });
+                resolve();
+            } else {
+                reject(response.status);
+            }
+        } catch (error) {
+            console.error('Error en la validación del token:', error);
+            reject(500);
+        }
     });
 }
 
@@ -272,23 +276,19 @@ function initMain() {
         return loadContent('views/login.html');
     }
     document.body.style.backgroundColor = "lightgray";
+    document.querySelectorAll('.section-link').forEach(link => {
+        const section = link.dataset.section;
+        if (section === 'group1') {
+            link.parentElement.style.display = uAdm === 1 ? 'block' : 'none';
+        }
+        if (section === 'group2') {
+            link.parentElement.style.display = uAdm === 0 ? 'block' : 'none';
+        }
+    });
+    
     if (uAdm === 1) {
-        document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('general')"]`).parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'block';
         showSection('general', true);
     } else if (uAdm === 0) {
-        document.querySelector(`a[onclick="showSection('sendComplaints')"]`).parentElement.parentElement.parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('catalogos/mediosRecepcion')"]`).parentElement.parentElement.parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('SEPOMEX/estados')"]`).parentElement.parentElement.parentElement.style.display = 'block';
-        document.querySelector(`a[onclick="showSection('general')"]`).parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('createSuperUser')"]`).parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('createUser')"]`).parentElement.style.display = 'none';
-        document.querySelector(`a[onclick="showSection('renewalToken')"]`).parentElement.style.display = 'none';
         showSection('sendComplaints', true);
     } else {
         document.body.style.backgroundColor = "";
@@ -372,27 +372,44 @@ function messageErrorHandler(errorCode) {
     if (errorCode === 401 || errorCode === 403) {
         return Swal.fire({
             title: "Sesión Expirada",
-            text: "Por seguridad, por favor vuelve a iniciar sesión.",
+            text: "Por seguridad, vuelva a iniciar sesión.",
             icon: "info",
-            timer: 4000,
+            timer: 4500,
             showConfirmButton: false
         });
     } else if (errorCode === 500) {
         return Swal.fire({
             title: "Error del Servidor",
-            text: "Ha ocurrido un error. Por favor, intenta más tarde.",
+            text: "Ha ocurrido un error. Por favor, intenta más tarde o contacte directamente a soporte.",
             icon: "error",
-            timer: 4000,
+            timer: 5000,
             showConfirmButton: false
         });
     }
     return;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('log')) {
-        loadContent('views/main.html');
-    } else {
+document.addEventListener('DOMContentLoaded', async () => {
+    const appElement = document.getElementById('app');
+    if (!appElement) {
+        console.error("Elemento 'app' no encontrado.");
+        return;
+    }
+
+    try {
+        const isLoggedIn = sessionStorage.getItem('log');
+        if (isLoggedIn) {
+            await checkAuth(false)
+                .then(() => loadContent('views/main.html'))
+                .catch((errorCode) => {
+                    messageErrorHandler(errorCode);
+                    loadContent('views/login.html');
+                });
+        } else {
+            loadContent('views/login.html');
+        }
+    } catch (error) {
+        console.error('Error durante la inicialización:', error);
         loadContent('views/login.html');
     }
 });

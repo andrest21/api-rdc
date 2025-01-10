@@ -556,7 +556,7 @@ function initSectionLogic(sectionId) {
 
                 if (!validateForm(complaintData));
                 if (!checkInvalid("sendComplaintsForm")) return;
-
+                
                 try {
                     const response = await fetch('/.netlify/functions/complaint/send', {
                         method: 'POST',
@@ -575,8 +575,8 @@ function initSectionLogic(sectionId) {
                             icon: "success"
                         });
                         $('#sendComplaintsForm').trigger("reset");
-                        $('#QuejasDenominacion').val(complaintData['quejasDenominacion']);
-                        $('#QuejasSector').val(complaintData['quejasSector']);
+                        descInputG.value = uInsDG;
+                        sectorInputG.value = uInsSG;
                     } else {
                         $('#spinner').addClass('d-none');
                         Swal.fire({
@@ -993,25 +993,19 @@ async function cargarProductos() {
         const data = JSON.parse(prodCache);
         cargarCatalogoWD(data, 'products', ["productId", "product", "institucion"], 'catalogoProd');
     } else {
-        try {
-            const response = await fetch('/.netlify/functions/catalog/product', {
-                method: 'GET',
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud:${response.statusText})`);
-            }
-
-            const data = await response.json();
+        const response = await fetch('/.netlify/functions/catalog/product', {
+            method: 'GET',
+        });
+        const data = await response.json();
+        if (response.ok) {
             sessionStorage.setItem('product-list', JSON.stringify(data));
             cargarCatalogoWD(data, 'products', ["productId", "product", "institucion"], 'catalogoProd');
-        } catch (error) {
+        }else{
             $('#spinner').addClass('d-none');
-            console.error('Error al cargar los productos:', error);
             Swal.fire({
-                title: 'Error',
-                text: 'Hubo un error al cargar el catálogo de productos.',
-                icon: 'error'
+                title: "Error",
+                text: data.message || response.statusText,
+                icon: "error",
             }).then((result) => {
                 if (result.isConfirmed) window.location.href = 'index.html';
             });
@@ -1026,42 +1020,28 @@ async function cargarCausas(prodId) {
         const data = JSON.parse(causasCache);
         cargarCatalogoWD(data, 'causas', ["causaId", "causa", "institucion"], 'catalogoCausas');
     } else {
-        try {
-            const response = await fetch('/.netlify/functions/catalog/causas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ prodId: prodId })
-            });
+        const response = await fetch('/.netlify/functions/catalog/causas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ prodId: prodId })
+        });
 
-            if (!response.ok) {
-                throw new Error(`Error en la solicitud:${response.statusText})`);
-            }
-
-            const data = await response.json();
-            if (response.ok){
-                if (data['causas'].length != 0 )
-                    sessionStorage.setItem('causas-list', JSON.stringify(data));
-                else
-                    sessionStorage.removeItem('causas-list');
-                sessionStorage.setItem('product-id', prodId);
-                cargarCatalogoWD(data, 'causas', ["causaId", "causa", "institucion"], 'catalogoCausas');
-            } else {
-                $('#spinner').addClass('d-none');
-                Swal.fire({
-                    title: "Error",
-                    text: `${data.error || response.statusText}`,
-                    icon: "error"
-                });
-            }
-        } catch (error) {
+        const data = await response.json();
+        if (response.ok){
+            if (data['causas'].length != 0 )
+                sessionStorage.setItem('causas-list', JSON.stringify(data));
+            else
+                sessionStorage.removeItem('causas-list');
+            sessionStorage.setItem('product-id', prodId);
+            cargarCatalogoWD(data, 'causas', ["causaId", "causa", "institucion"], 'catalogoCausas');
+        } else {
             $('#spinner').addClass('d-none');
-            console.error('Error al cargar las causas:', error);
             Swal.fire({
-                title: 'Error',
-                text: 'Hubo un error al cargar el catálogo de causas.',
-                icon: 'error'
+                title: "Error",
+                text: `${data.message || response.statusText}`,
+                icon: "error"
             }).then((result) => {
                 if (result.isConfirmed) window.location.href = 'index.html';
             });
@@ -1070,28 +1050,23 @@ async function cargarCausas(prodId) {
 }
 
 async function buscarQueja(year, month) {
-    try {
-        const response = await fetch('/.netlify/functions/complaint/find', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ year: year, month: month })
-        });
+    const response = await fetch('/.netlify/functions/complaint/find', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ year: year, month: month })
+    });
 
-        if (!response.ok) {
-            throw new Error(`Error en la solicitud:${response.statusText})`);
-        }
-
-        const data = await response.json();
+    const data = await response.json();
+    if (response.ok) {
         cargarCatalogoWD(data, 'quejas', ["institucionClave", "folio", "year","month"], 'catalogoQuejas');
-    } catch (error) {
+    }else{
         $('#spinner').addClass('d-none');
-        console.error('Error al cargar la queja:', error);
         Swal.fire({
-            title: 'Error',
-            text: 'Hubo un error al cargar la queja.',
-            icon: 'error'
+            title: "Error",
+            text: data.message || response.statusText,
+            icon: "error",
         }).then((result) => {
             if (result.isConfirmed) window.location.href = 'index.html';
         });

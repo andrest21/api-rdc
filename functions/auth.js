@@ -35,8 +35,10 @@ const router = express.Router();
 // Función para generar JWT
 function generateToken(user) {
   const payload = {
-    id: user._id,
-    username: user.username
+    id_institution: user.id_institution,
+    user_type: user.user_type,
+    username: user.username,
+    date: new Date()
   };
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 }
@@ -101,7 +103,26 @@ router.post('/super-user', async (req, res) => {
     if (isPasswordValid) {
       if (user.changePass)
         return res.status(400).json({ status:'expired', message: 'Ingresa por primera vez al sistema, por favor cambie la contraseña.' });
+      
       const token = generateToken(user);
+      const updUser = await User.findOneAndUpdate(
+        {
+          id_institution,
+          user_type:"user_admin",
+          username
+        },
+        {
+          $set: {
+            sid: token,
+          }
+        },
+        {
+          new: true
+        }
+      )
+      if (!updUser)
+        return res.status(404).json({ message: 'Hubo un error al intentar iniciar sesión, por favor intente mas tarde ó contacte directamente a soporte.' });
+      
       res.cookie('token', token, {
         httpOnly: true,   // Para que solo el servidor pueda acceder a la cookie
         secure: true,     // Solo se envía en HTTPS
@@ -146,6 +167,24 @@ router.post('/user', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       const token = generateToken(user);
+      const updUser = await User.findOneAndUpdate(
+        {
+          id_institution,
+          user_type:"user_gen",
+          username
+        },
+        {
+          $set: {
+            sid: token,
+          }
+        },
+        {
+          new: true
+        }
+      )
+      if (!updUser)
+        return res.status(404).json({ message: 'Hubo un error al intentar iniciar sesión, por favor intente mas tarde ó contacte directamente a soporte.' });
+      
       res.cookie('token', token, {
         httpOnly: true,   // Para que solo el servidor pueda acceder a la cookie
         secure: true,     // Solo se envía en HTTPS
@@ -208,7 +247,7 @@ router.post('/create-super-user', async (req, res) => {
 
     if (!apiResponse.ok) {
       let errorText = result.error || result.msg;
-      return res.status(400).json({ message: 'Error en la API:'+errorText, details: result });
+      return res.status(400).json({ message: 'Error en la API: '+errorText, details: result });
     }
 
     const token_access = result.token_access;
@@ -245,7 +284,8 @@ router.post('/create-user', async (req, res) => {
     const result = await apiResponse.json();
 
     if (!apiResponse.ok) {
-      return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+      let errorText = result.error || result.msg;
+      return res.status(400).json({ message: 'Error en la API: '+errorText, details: result });
     }
 
     const token_access = result["data"].token_access;
@@ -257,7 +297,8 @@ router.post('/create-user', async (req, res) => {
       username,
       password: hashedPassword,
       token_access,
-      date_token_created: new Date()
+      date_token_created: new Date(),
+      sid: null
     });
 
     await newUser.save();
@@ -311,9 +352,10 @@ router.post('/renewal', async (req, res) => {
     const result = apiResponse.data;
 
     if (apiResponse.status !== 200) {
+      let errorText = result.error || result.msg;
       return res
         .status(400)
-        .json({ message: `Error en la API: ${result.msg}`, details: result });
+        .json({ message: `Error en la API: ${errorText}`, details: result });
     }
 
     const token_access = result["user"].token_access;

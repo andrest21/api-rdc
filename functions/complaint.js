@@ -111,7 +111,7 @@ router.post('/find', async (req, res) => {
 
         const result = await apiResponse.json();
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API:'+ result.msg, details: result });
+            return res.status(400).json({ message: 'Error en la API: '+ result.error});
         }
         
         res.json(result);
@@ -143,7 +143,8 @@ router.post('/del', async (req, res) => {
         const result = await apiResponse.json();
 
         if (!apiResponse.ok) {
-            return res.status(400).json({ message: 'Error en la API:'+result.msg, details: result });
+            let errorText = result.error || result.msg;
+            return res.status(400).json({ message: 'Error en la API: '+errorText, details: result });
         }
         res.json(result);
     } catch (error) {

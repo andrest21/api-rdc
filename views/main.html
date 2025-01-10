@@ -4,16 +4,15 @@
         <p id="welcomeProfile" class="m-0 p-0" style="flex: 1;color: #4a4a4a;"></p>
     </div>
     <ul class="nav nav-tabs nav-fill">    
-        <li class="nav-item pt-4"><a class="nav-link active" aria-current="page" href="#"
+        <li class="nav-item pt-4"><a class="nav-link section-link" data-section="group1" aria-current="page" href="#"
             onclick="showSection('general')"><i class="fas fa-home"></i> Datos de Institución</a></li>
-        <li class="nav-item pt-4"><a class="nav-link" aria-current="page" href="#"
-                onclick="showSection('createSuperUser')"><i class="fas fa-key"></i> Generacion de Token Admin</a></li>
-        <li class="nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('createUser')""><i class="fas fa-user-check"></i> Creación de Usuarios</a></li>
-        <li class=" nav-item pt-4"><a class="nav-link" href="#" onclick="showSection('renewalToken')"><i class="fas fa-seedling"></i> Renovación de
+        <li class="nav-item pt-4"><a class="nav-link section-link" data-section="group1" href="#" onclick="showSection('createSuperUser')"><i class="fas fa-key"></i> Generacion de Token Admin</a></li>
+        <li class="nav-item pt-4"><a class="nav-link section-link" data-section="group1" href="#" onclick="showSection('createUser')""><i class="fas fa-user-check"></i> Creación de Usuarios</a></li>
+        <li class=" nav-item pt-4"><a class="nav-link section-link" data-section="group1" href="#" onclick="showSection('renewalToken')"><i class="fas fa-seedling"></i> Renovación de
                     Token</a>
         </li>
         <li class="nav-item pt-4 dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+            <a class="nav-link dropdown-toggle section-link" data-section="group2" data-bs-toggle="dropdown" href="#" role="button"
                 aria-expanded="false"><i class="fas fa-envelope-open-text"></i> Quejas</a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="showSection('sendComplaints')">Enviar Quejas</a></li>
@@ -22,7 +21,7 @@
             </ul>
         </li>
         <li class="nav-item pt-4 dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+            <a class="nav-link dropdown-toggle section-link" data-section="group2" data-bs-toggle="dropdown" href="#" role="button"
                 aria-expanded="false"><i class="fas fa-table"></i> Catálogos Generales</a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="showSection('catalogos/mediosRecepcion')">Medios de
@@ -37,7 +36,7 @@
             </ul>
         </li>
         <li class="nav-item pt-4 dropdown">
-            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+            <a class="nav-link dropdown-toggle section-link" data-section="group2" data-bs-toggle="dropdown" href="#" role="button"
                 aria-expanded="false"><i class="fas fa-store"></i> Catálogos SEPOMEX</a>
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="showSection('SEPOMEX/estados')">Estados</a></li>

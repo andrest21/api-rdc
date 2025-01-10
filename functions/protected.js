@@ -7,7 +7,7 @@ const app = express();
 app.use(cookieParser());
 
 app.get('/.netlify/functions/protected', verifyToken, (req, res) => {
-  res.json({ message: 'Acceso concedido', user: req.user });
+  res.json({ message: 'Acceso concedido' });
 });
 
 module.exports.handler = serverless(app);
